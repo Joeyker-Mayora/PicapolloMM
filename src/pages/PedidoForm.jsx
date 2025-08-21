@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import {showError} from "../components/Utils/toastUtils"
 import { PageModal } from "../components/Utils/CustomStyles";
+import Picapollo from "../img/Picapollo.png"
 
 
 
@@ -46,16 +47,16 @@ const PedidoForm = () => {
   const navigate = useNavigate();
 
   const zonasConTarifa = {
-    "Catia la mar": "435,00",
-    "Maiquetia": "145,00",
-    "Aeropuerto IAIM": "290,00",
-    "Macuto": "290,00",
-    "Caribe": "390,00",
-    "Tanaguarena": "455,00",
-    "Carlos Soublette": "290,00",
-    "La Guaira": "290,00",
-    "Urimare": "435,00",
-    "Caraballeda": "435,00",
+    "Catia la mar": "3.00",
+    "Maiquetia": "1.00",
+    "Aeropuerto IAIM": "2.00",
+    "Macuto": "2.00",
+    "Caribe": "3.00",
+    "Tanaguarena": "3.00",
+    "Carlos Soublette": "1.00",
+    "La Guaira": "2.00",
+    "Urimare": "3.00",
+    "Caraballeda": "3.00",
 
   };
 
@@ -110,25 +111,22 @@ const PedidoForm = () => {
       }
     }
 
-    const direccionFinal =
-  entrega === "Delivery"
-    ? `${zonaSeleccionada}, ${sector.trim()}`
-    : "Residencia Litoral, Plaza Humboldt";
+        const direccionFinal = 
+        entrega === "Delivery"
+          ? `${zonaSeleccionada}, ${sector.trim()}`
+          : entrega === "Retiro"
+            ? "Sector Cocoteros, Maiquetia"
+            : ""; // En Local no necesita dirección
 
-const zonaFormateada =
-  entrega === "Delivery"
-    ? `${zonaSeleccionada}, ${sector.trim()}`
-    : "Retiro"; // si querés guardar que es retiro también en zonaSeleccionada
-
-    const datosPedido = {
-      nombre,
-      telefono,
-      comentarios,
-      entrega,
-      zonaSeleccionada: zonaFormateada,
-      direccion: direccionFinal,
-      tarifaDelivery: entrega === "Delivery" && tarifa ? tarifa : 0,
-    };
+      const datosPedido = {
+        nombre,
+        telefono,
+        comentarios,
+        entrega, // guardamos tal cual lo eligió el usuario
+        zonaSeleccionada: entrega === "Delivery" ? `${zonaSeleccionada}, ${sector.trim()}` : "", 
+        direccion: direccionFinal,
+        tarifaDelivery: entrega === "Delivery" && tarifa ? tarifa : 0,
+      };
 
     sessionStorage.setItem("datosPedido", JSON.stringify(datosPedido));
 
@@ -146,126 +144,131 @@ const zonaFormateada =
   }));
 
   return (
-    <div className="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] min-h-screen flex items-start justify-center fondo px-6 py-2 sm:py-12 lg:py-4">
-      <div className="bg-white p-8 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center relative mt-20 sm:mt-16">
-        <h1 className="text-2xl font-bold text-red-600 mb-2">¡Más que un sushi! 🍣</h1>
-        <p className="text-gray-600 mb-6 font-semibold">Completá tus datos para hacer tu pedido.</p>
+  <div className="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] min-h-screen flex items-start justify-center fondo px-6 py-2 sm:py-12 lg:py-4">
+    <div className="bg-white p-8 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center relative mt-20 sm:mt-16">
 
-        <input
-          type="text"
-          placeholder="Nombre"
-          className="mb-4 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          autoComplete="name"
+      {/* Logo */}
+      <div className="flex items-center justify-center mb-4">
+        <img
+          src={Picapollo}
+          alt="Logotipo PicaPollo"
+          className="w-40 h-30 object-cover"
         />
-
-        <input
-          type="tel"
-          placeholder="Teléfono"
-          className="mb-6 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
-          value={telefono}
-          onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ""))}
-          autoComplete="tel"
-          maxLength={11}
-        />
-
-        <p className="text-red-600 font-semibold mb-2">Formas de entrega</p>
-        <div className="flex justify-center mb-6 gap-8">
-          {["Delivery", "Retiro"].map((metodo) => (
-            <label
-              key={metodo}
-              className="flex items-center gap-2 cursor-pointer select-none text-gray-700"
-            >
-              <input
-                type="radio"
-                name="entrega"
-                value={metodo}
-                checked={entrega === metodo}
-                onChange={() => setEntrega(metodo)}
-                className="accent-red-600"
-              />
-              {metodo}
-            </label>
-          ))}
-        </div>
-
-        {entrega === "Delivery" && (
-          <>
-            <div className="mb-4 w-full shadow-md">
-              <Select
-                options={opcionesZonas}
-                value={
-                  zonaSeleccionada
-                    ? { value: zonaSeleccionada, label: zonaSeleccionada }
-                    : null
-                }
-                onChange={handleZonaChange}
-                placeholder="Seleccioná tu zona"
-                isClearable
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    borderColor: "#e5e7eb",
-                    boxShadow: "none",
-                    minHeight: "44px",
-                    paddingLeft: "4px",
-                    fontSize: "1rem",
-                  }),
-                  menu: (base) => ({
-                    ...base,
-                    zIndex: 9999,
-                  }),
-                }}
-              />
-            </div>
-
-            {zonaSeleccionada && (
-              <input
-                type="text"
-                placeholder="Escribí el sector"
-                className="mb-4 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
-                value={sector}
-                onChange={(e) => setSector(e.target.value)}
-              />
-            )}
-
-            {tarifa !== null && (
-              <div className="mb-6 p-3 border border-red-300 rounded shadow-md bg-red-50 text-red-600 text-sm text-left font-semibold">
-                Tarifa de delivery: Bs. {tarifa}
-              </div>
-            )}
-          </>
-        )}
-
-        {entrega === "Retiro" && (
-          <div className="mb-6 p-4 border border-gray-300 rounded-lg shadow-md bg-white text-gray-700 font-semibold">
-            Residencia Litoral, Plaza Humboldt
-          </div>
-        )}
-
-        <textarea
-          placeholder="¿Hay algo que no querés incluir en tu pedido? ¡Dejalo acá!"
-          className="mb-4 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
-          value={comentarios}
-          onChange={(e) => setComentarios(e.target.value)}
-        />
-
-        <button
-          onClick={handleSiguiente}
-          className="bg-gradient-to-r from-red-500 to-red-700 hover:bg-red-800 text-white px-10 py-2 mt-4 rounded transition mx-auto block"
-        >
-          SIGUIENTE
-        </button>
-
-        
       </div>
-      <PageModal 
-            mostrarModal={mostrarModal} 
-            onComplete={() => setMostrarModal(false)} 
-          />
+
+      <p className="text-gray-600 mb-6 font-semibold mt-2">
+        Completá tus datos para hacer tu pedido.
+      </p>
+
+      {/* Forma de entrega primero */}
+      <p className="text-orange-600 font-semibold mb-2">Formas de entrega</p>
+      <div className="flex justify-center mb-6 gap-6">
+        {["Delivery", "Retiro", "En Local"].map((metodo) => (
+          <label
+            key={metodo}
+            className="flex items-center gap-2 cursor-pointer select-none text-gray-700"
+          >
+            <input
+              type="radio"
+              name="entrega"
+              value={metodo}
+              checked={entrega === metodo}
+              onChange={() => setEntrega(metodo)}
+              className="accent-orange-600"
+            />
+            {metodo}
+          </label>
+        ))}
+      </div>
+
+      {/* Nombre y teléfono (siempre visibles) */}
+      <input
+        type="text"
+        placeholder="Nombre"
+        className="mb-4 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        autoComplete="name"
+      />
+
+      <input
+        type="tel"
+        placeholder="Teléfono"
+        className="mb-6 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
+        value={telefono}
+        onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ""))}
+        autoComplete="tel"
+        maxLength={11}
+      />
+
+      {/* Secciones condicionales según la forma de entrega */}
+      {entrega === "Delivery" && (
+        <>
+          {/* Zona */}
+          <div className="mb-4 w-full shadow-md">
+            <Select
+              options={opcionesZonas}
+              value={zonaSeleccionada ? { value: zonaSeleccionada, label: zonaSeleccionada } : null}
+              onChange={handleZonaChange}
+              placeholder="Seleccioná tu zona"
+              isClearable
+              styles={{
+                control: (base) => ({ ...base, borderColor: "#e5e7eb", boxShadow: "none", minHeight: "44px", paddingLeft: "4px", fontSize: "1rem" }),
+                menu: (base) => ({ ...base, zIndex: 9999 }),
+              }}
+            />
+          </div>
+
+          {/* Sector */}
+          {zonaSeleccionada && (
+            <input
+              type="text"
+              placeholder="Escribí el sector"
+              className="mb-4 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
+              value={sector}
+              onChange={(e) => setSector(e.target.value)}
+            />
+          )}
+
+          {/* Tarifa */}
+          {tarifa !== null && (
+           <div className="flex justify-between items-center mb-6 p-3 border border-orange-300 rounded shadow-md bg-orange-50 text-orange-600 text-sm font-semibold">
+              <span>Tarifa de delivery</span>
+              <span>${tarifa}</span>
+            </div>
+          )}
+        </>
+      )}
+
+      {entrega === "Retiro" && (
+        <div className="mb-6 p-4 border border-gray-300 rounded-lg shadow-md bg-white text-gray-700 font-semibold">
+          Sector Cocoteros, Maiquetia.
+        </div>
+      )}
+
+      {/* Para "En Local" no mostramos nada extra, solo nombre y teléfono */}
+
+      {/* Comentarios */}
+      <textarea
+        placeholder="¿Hay algo que no quieres incluir en tu pedido? ¡Dejalo acá!"
+        className="mb-4 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none"
+        value={comentarios}
+        onChange={(e) => setComentarios(e.target.value)}
+      />
+
+      <button
+        onClick={handleSiguiente}
+        className="bg-gradient-to-r from-orange-500 to-orange-700 hover:bg-orange-800 text-white px-10 py-2 mt-4 rounded transition mx-auto block"
+      >
+        SIGUIENTE
+      </button>
+
     </div>
-  );
+
+    <PageModal mostrarModal={mostrarModal} onComplete={() => setMostrarModal(false)} />
+  </div>
+);
+
 };
 
 export default PedidoForm;

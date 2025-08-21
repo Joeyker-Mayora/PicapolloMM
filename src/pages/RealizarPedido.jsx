@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import PlatoSelector from '../components/PlatoSelector';
-import menu1 from '../img/menu1.png';
-import menu2 from '../img/menu2.png';
-import PlatoSelectorBarcos from '../components/PlatoSelectorBarcos';
+import menu1 from '../img/menu1.jpg';
 import PlatoSelectorExtras from '../components/PlatoSelectorExtras';
-import PlatoSelectorEntradas from '../components/PlatoSelectorEntradas';
 import ModalInicio from '../components/ModalInicio';
 import { PageModal } from '../components/Utils/CustomStyles';
-
+import PlatosCombosPequeños from '../components/PlatosCombosPequeños';
+import PlatosCombosGrandes from '../components/PlatosCombosGrandes';
+import PlatosVariedad from '../components/PlatosVariedad';
 const RealizarPedido = () => {
   const [seleccionEntradas, setSeleccionEntradas] = useState([]);
   const [seleccionRoles, setSeleccionRoles] = useState([]);
@@ -25,7 +23,7 @@ const RealizarPedido = () => {
   const [touchStartX, setTouchStartX] = useState(null);
   const [touchEndX, setTouchEndX] = useState(null);
 
-  const imagenes = [menu2, menu1];
+  const imagenes = [menu1];
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -66,25 +64,8 @@ const RealizarPedido = () => {
   ];
 
   // Validar que todos los barcos tengan croqueta o ensalada
-  const barcos = seleccionBarcos; // ya viene del hijo con toda la info
-  const barcosSinAcompanante = barcos.filter(b => !b.croqueta && !b.ensalada);
 
-  if (barcos.length > 0 && barcosSinAcompanante.length > 0) {
-    toast.error(`Falta seleccionar Croqueta o Ensalada para todos los barcos.`, {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" strokeWidth={3} viewBox="0 0 24 24" width={20} height={20}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      ),
-      style: {
-        background: 'rgba(780, 38, 38, 0.85)',
-        color: 'white',
-        borderRadius: '12px',
-        fontWeight: '600',
-      },
-    });
-    return;
-  }
+  
 
   if (todosPlatos.length === 0) {
     toast.error('Seleccioná al menos un plato', {
@@ -136,41 +117,36 @@ const RealizarPedido = () => {
 
         <div className="flex justify-center gap-4 mb-6 mt">
           <img
-            src={menu2}
-            alt="Menú 2"
-            onClick={() => abrirModalImagen(0)}
-            className="w-32 h-40 object-cover rounded-lg shadow-xl cursor-pointer transform rotate-[-3deg] border border-gray-300 hover:scale-105 transition"
-          />
-          <img
             src={menu1}
             alt="Menú 1"
-            onClick={() => abrirModalImagen(1)}
+            onClick={() => abrirModalImagen(0)}
             className="w-32 h-40 object-cover rounded-lg shadow-xl cursor-pointer transform rotate-[3deg] border border-gray-300 hover:scale-105 transition"
           />
         </div>
 
         <div className="flex flex-col items-center select-none cursor-default">
-          <span className="text-red-400 font-medium text-sm">⬆️</span>
-          <span className="text-red-600 font-bold text-sm">¡Pulsa para ver el menu!</span>
+        <span className="text-orange-400 font-medium text-sm">⮝</span>
+          <span className="text-orange-500 font-bold text-sm">¡Pulsa para ver el menu!</span>
         </div>
 
-        <h1 className="text-2xl font-bold text-red-600 mb-2">¡Más que un sushi! 🍣</h1>
+        <h1 className="text-2xl font-bold text-orange-600 mb-2">¡Pollo a la Broaster!🍗</h1>
         <p className="text-gray-600 mb-6 font-semibold">Personaliza tu pedido antes de continuar..</p>
 
-        <p className="text-left text-red-600 font-semibold mb-1">Entradas</p>
-        <PlatoSelectorEntradas onSeleccion={setSeleccionEntradas} valorSeleccionado={seleccionEntradas} />
+       
+        <p className="text-left text-orange-600 font-semibold mb-1">Combos Pequeños</p>
+        <PlatosCombosPequeños onSeleccion={setSeleccionRoles} valorSeleccionado={seleccionRoles} />
 
-        <p className="text-left text-red-600 font-semibold mb-1">Roles</p>
-        <PlatoSelector onSeleccion={setSeleccionRoles} valorSeleccionado={seleccionRoles} />
 
-        <p className="text-left text-red-600 font-semibold mb-1">Barcos/Tortas</p>
-        <PlatoSelectorBarcos
-          onSeleccion={setSeleccionBarcos}
-          valorSeleccionado={seleccionBarcos}
-          onInteractuar={activo}
-        />
+        
+        <p className="text-left text-orange-600 font-semibold mb-1">Combos Grandes</p>
+        <PlatosCombosGrandes onSeleccion={setSeleccionBarcos} valorSeleccionado={seleccionBarcos} />
 
-        <p className="text-left text-red-600 font-semibold mb-1">Extras</p>
+        
+
+        <p className="text-left text-orange-600 font-semibold mb-1">Hamburguesas y mas</p>
+        <PlatosVariedad onSeleccion={setSeleccionEntradas} valorSeleccionado={seleccionEntradas} />
+
+        <p className="text-left text-orange-600 font-semibold mb-1">Extras</p>
         <PlatoSelectorExtras 
           onSeleccion={setSeleccionExtras} 
           valorSeleccionado={seleccionExtras}
@@ -179,7 +155,7 @@ const RealizarPedido = () => {
 
 
         <button
-          className="bg-gradient-to-r from-red-500 to-red-700 hover:bg-red-800 text-white px-10 py-2 mt-4 rounded transition mx-auto block"
+          className="bg-gradient-to-r from-orange-500 to-orange-700 hover:bg-orange-800 text-white px-10 py-2 mt-4 rounded transition mx-auto block"
           onClick={handleSiguiente}
         >
           SIGUIENTE

@@ -4,6 +4,8 @@ import {showError,showSuccess} from "../components/Utils/toastUtils"
 import { Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageModal } from "../components/Utils/CustomStyles";
+import Picapollo from "../img/Picapollo.png"
+
 
 
 
@@ -28,10 +30,10 @@ const PedidoResumen = () => {
   const [referencia, setReferencia] = useState("");
   const [denominacion, setDenominacion] = useState("");
   const [tarifaDelivery, setTarifaDelivery] = useState(0);
-  const [platosSeleccionados, setPlatosSeleccionados] = useState([]);
-  const [entradasSeleccionadas, setEntradasSeleccionadas] = useState([]);
+  const [platosPequeños, setplatosPequeños] = useState([]);
+  const [platosVariedad, setplatosVariedad] = useState([]);
   const [extras, setExtras] = useState([]);
-  const [pedidoBarco, setPedidoBarco] = useState(null);
+  const [platosGrandes, setplatosGrandes] = useState([]);
   const [numeroPromo, setNumeroPromo] = useState(null);
   const [preparacionUsuario, setPreparacionUsuario] = useState("");
   const [ingredientesPorPlato, setIngredientesPorPlato] = useState({});
@@ -43,20 +45,26 @@ const PedidoResumen = () => {
 
   const sonidoConfirmacion = new Audio("/success.mp3");
 
-  const formatearPrecio = (precio, metodoPago) => {
-  if (metodoPago === "Efectivo" || metodoPago === "Zelle") {
-    const precioUSD = convertirAPrecioNumero(precio) / 160;
-    return precioUSD.toLocaleString("en-US", {
+ const formatearPrecio = (precio, metodoPago) => {
+  // Convertimos el precio a número
+  const precioNum = convertirAPrecioNumero(precio);
+
+  if (metodoPago === "Pago Móvil") {
+    // Convertimos de USD a Bs usando la tasa (ejemplo: 160 Bs/USD)
+    const precioBs = precioNum * 145;
+    return precioBs.toLocaleString("es-VE", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }) + " USD";
+    }) + " Bs";
   }
 
-  return precio.toLocaleString("es-VE", {
+  // Para los demás métodos, mostramos en USD
+  return precioNum.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }) + " Bs";
+  }) + " USD";
 };
+
 
 
   const convertirAPrecioNumero = (valor) => {
@@ -74,10 +82,10 @@ const PedidoResumen = () => {
 
  useEffect(() => {
   try {
-    const platos = JSON.parse(sessionStorage.getItem("platosSeleccionados")) || [];
-    const entradas = JSON.parse(sessionStorage.getItem("entradasSeleccionadas")) || [];
+    const platos = JSON.parse(sessionStorage.getItem("platosPequeños")) || [];
+    const variedad = JSON.parse(sessionStorage.getItem("platosVariedad")) || [];
     const extras = JSON.parse(sessionStorage.getItem("extrasSeleccionados")) || [];
-    const pedidoBarcoData = JSON.parse(sessionStorage.getItem("pedidoBarco")) || null;
+    const platosGrandes = JSON.parse(sessionStorage.getItem("platosGrandes")) || [];
     const promos = JSON.parse(sessionStorage.getItem("promosSeleccionadas")) || [];
     const ingredientesPorPlatoData = JSON.parse(sessionStorage.getItem("ingredientesSeleccionadosPorPlato")) || {};
 
@@ -90,10 +98,10 @@ const PedidoResumen = () => {
       ? parseFloat(datos.tarifaDelivery.toString().replace(",", "."))
       : 0;
 
-    setPlatosSeleccionados(platos);
-    setEntradasSeleccionadas(entradas);
+    setplatosPequeños(platos);
+    setplatosVariedad(variedad);
     setExtras(extras);
-    setPedidoBarco(pedidoBarcoData);
+    setplatosGrandes(platosGrandes);
     setPromosSeleccionadas(promos);
     setIngredientesPorPlato(ingredientesPorPlatoData);
     setTarifaDelivery(tarifa);
@@ -102,10 +110,10 @@ const PedidoResumen = () => {
     // en este componente. Solo lectura.
   } catch (error) {
     console.error("Error al cargar datos desde sessionStorage", error);
-    setPlatosSeleccionados([]);
-    setEntradasSeleccionadas([]);
+    setplatosPequeños([]);
+    setplatosVariedad([]);
     setExtras([]);
-    setPedidoBarco(null);
+    setplatosGrandes(null);
     setPromosSeleccionadas([]);
     setIngredientesPorPlato({});
     setTarifaDelivery(0);
@@ -123,21 +131,27 @@ useEffect(() => {
 
   const usadosComoSubextras = new Set();
 
-  platosSeleccionados.forEach((plato) => {
+  platosPequeños.forEach((plato) => {
     const nombre = typeof plato.nombre === "string" ? plato.nombre : plato.nombre?.es || plato.nombre?.value || "Roll sin nombre";
     const cantidad = plato.cantidad || 1;
     const precioPlato = convertirAPrecioNumero(plato.precio) * cantidad;
 
-    const extrasParaEstePlato = extras.filter(extra => extra.extraAplicado === nombre);
+    
 
-    const subextras = extrasParaEstePlato.map(extra => {
-      usadosComoSubextras.add(extra);
-      return { nombre: extra.nombre, precio: convertirAPrecioNumero(extra.precio) };
-    });
-
-    productos.push({ nombre: `${nombre} (x${cantidad})`, precio: precioPlato, subextras });
+    productos.push({ nombre: `${nombre} (x${cantidad})`, precio: precioPlato,  });
   });
 
+  platosGrandes.forEach((plato) => {
+    const nombre = typeof plato.nombre === "string" ? plato.nombre : plato.nombre?.es || plato.nombre?.value || "Roll sin nombre";
+    const cantidad = plato.cantidad || 1;
+    const precioPlato = convertirAPrecioNumero(plato.precio) * cantidad;
+
+    
+
+    productos.push({ nombre: `${nombre} (x${cantidad})`, precio: precioPlato,  });
+  });
+  
+  
   promosSeleccionadas.forEach((item) => {
   const preparacion = item?.preparacion || "";
   const precio = convertirAPrecioNumero(item?.precio || item?.promo?.precio);
@@ -153,26 +167,11 @@ useEffect(() => {
 });
 
 
-  entradasSeleccionadas.forEach((plato) => {
+  platosVariedad.forEach((plato) => {
     const nombre = typeof plato.nombre === "string" ? plato.nombre : plato.nombre?.es || plato.nombre?.value || "Entrada sin nombre";
     const cantidad = plato.cantidad || 1;
     agregarProducto(`${nombre} (x${cantidad})`, convertirAPrecioNumero(plato.precio) * cantidad);
   });
-
-  if (pedidoBarco && Array.isArray(pedidoBarco.barcos)) {
-    pedidoBarco.barcos.forEach((barco) => {
-      productos.push({
-        nombre: `Barco ${barco.tamaño} piezas`,
-        precio: convertirAPrecioNumero(barco.precio),
-        subproductos: barco.platos || [],
-        croqueta: barco.croqueta || false,
-        ensalada: barco.ensalada || false,
-        esBarco: true,
-        tipo: barco.tipo || "Barco",
-        tamaño: barco.tamaño || "30",
-      });
-    });
-  }
 
   extras.forEach((extra) => {
     if (usadosComoSubextras.has(extra)) return;
@@ -182,7 +181,7 @@ useEffect(() => {
   });
 
   setDetalleProductos(productos);
-}, [platosSeleccionados, entradasSeleccionadas, extras, pedidoBarco, promosSeleccionadas]);
+}, [platosPequeños, platosGrandes, platosVariedad, extras, promosSeleccionadas]);
 
 useEffect(() => {
   const nuevoTotal = detalleProductos.reduce((acc, item) => {
@@ -242,44 +241,58 @@ useEffect(() => {
 
   const eliminarProducto = (producto) => {
   if (producto.esPromo) {
-  const numeroProducto = producto.nombre?.match(/\d+/)?.[0]; // <-- seguro
-  const nuevasPromos = promosSeleccionadas.filter(p => {
-    const numeroPromo = p.promo?.numero;
-    const precioPromo = convertirAPrecioNumero(p.precio);
-    return !(numeroPromo === numeroProducto && precioPromo === producto.precio);
-  });
-  
-  setPromosSeleccionadas(nuevasPromos);
-  sessionStorage.setItem("promosSeleccionadas", JSON.stringify(nuevasPromos));
-  } else if (producto.esBarco) {
-    if (!pedidoBarco) return;
-    const nuevosBarcos = pedidoBarco.barcos.filter(barco => barco.tamaño !== producto.tamaño || barco.tipo !== producto.tipo);
-    const nuevoPedidoBarco = { ...pedidoBarco, barcos: nuevosBarcos };
-    setPedidoBarco(nuevoPedidoBarco);
-    sessionStorage.setItem("pedidoBarco", JSON.stringify(nuevoPedidoBarco));
-  } else if (producto.subextras) {
-    const nombrePlatoSinCantidad = producto.nombre.replace(/\s\(x\d+\)/, "");
-    const nuevosPlatos = platosSeleccionados.filter(plato => plato.nombre !== nombrePlatoSinCantidad);
-    setPlatosSeleccionados(nuevosPlatos);
-    sessionStorage.setItem("platosSeleccionados", JSON.stringify(nuevosPlatos));
-    const nuevosExtras = extras.filter(extra => extra.extraAplicado !== nombrePlatoSinCantidad);
-    setExtras(nuevosExtras);
-    sessionStorage.setItem("extrasSeleccionados", JSON.stringify(nuevosExtras));
+    const numeroProducto = producto.nombre?.match(/\d+/)?.[0]; 
+    const nuevasPromos = promosSeleccionadas.filter(p => {
+      const numeroPromo = p.promo?.numero;
+      const precioPromo = convertirAPrecioNumero(p.precio);
+      return !(numeroPromo === numeroProducto && precioPromo === producto.precio);
+    });
+
+    setPromosSeleccionadas(nuevasPromos);
+    sessionStorage.setItem("promosSeleccionadas", JSON.stringify(nuevasPromos));
   } else {
     const nombreSinCantidad = producto.nombre.replace(/\s\(x\d+\)/, "");
-    const nuevasEntradas = entradasSeleccionadas.filter(entrada => entrada.nombre !== nombreSinCantidad);
-    if (nuevasEntradas.length !== entradasSeleccionadas.length) {
-      setEntradasSeleccionadas(nuevasEntradas);
-      sessionStorage.setItem("entradasSeleccionadas", JSON.stringify(nuevasEntradas));
+
+    // Revisar y eliminar de platosPequeños
+    const nuevosPequeños = platosPequeños.filter(plato => {
+      const nombrePlato = typeof plato.nombre === "string" ? plato.nombre : plato.nombre?.es || plato.nombre?.value;
+      return nombrePlato !== nombreSinCantidad;
+    });
+    if (nuevosPequeños.length !== platosPequeños.length) {
+      setplatosPequeños(nuevosPequeños);
+      sessionStorage.setItem("platosPequeños", JSON.stringify(nuevosPequeños));
+      showSuccess("Producto eliminado");
       return;
     }
+
+    // Revisar y eliminar de platosGrandes
+    const nuevosGrandes = platosGrandes.filter(plato => {
+      const nombrePlato = typeof plato.nombre === "string" ? plato.nombre : plato.nombre?.es || plato.nombre?.value;
+      return nombrePlato !== nombreSinCantidad;
+    });
+    if (nuevosGrandes.length !== platosGrandes.length) {
+      setplatosGrandes(nuevosGrandes);
+      sessionStorage.setItem("platosGrandes", JSON.stringify(nuevosGrandes));
+      showSuccess("Producto eliminado");
+      return;
+    }
+
+    // Revisar y eliminar de platosVariedad
+    const nuevasVariedad = platosVariedad.filter(plato => plato.nombre !== nombreSinCantidad);
+    if (nuevasVariedad.length !== platosVariedad.length) {
+      setplatosVariedad(nuevasVariedad);
+      sessionStorage.setItem("platosVariedad", JSON.stringify(nuevasVariedad));
+      showSuccess("Producto eliminado");
+      return;
+    }
+
+    // Revisar y eliminar de extras
     const nuevosExtras = extras.filter(extra => extra.nombre !== nombreSinCantidad);
     setExtras(nuevosExtras);
     sessionStorage.setItem("extrasSeleccionados", JSON.stringify(nuevosExtras));
   }
-
-  showSuccess("Producto eliminado");
 };
+
 
 const handleEnviar = () => { 
   if (!pago) {
@@ -298,16 +311,16 @@ const handleEnviar = () => {
   // 🔹 SIEMPRE leemos del sessionStorage en tiempo real
   const datos = JSON.parse(sessionStorage.getItem("datosPedido")) || {};
   const extrasSeleccionados = JSON.parse(sessionStorage.getItem("extrasSeleccionados")) || [];
-  const platosSeleccionados = JSON.parse(sessionStorage.getItem("platosSeleccionados")) || [];
-  const pedidoBarco = JSON.parse(sessionStorage.getItem("pedidoBarco")) || {};
+  const platosPequeños = JSON.parse(sessionStorage.getItem("platosPequeños")) || [];
+  const platosGrandes = JSON.parse(sessionStorage.getItem("platosGrandes")) || {};
   const promo = JSON.parse(sessionStorage.getItem("promosSeleccionadas")) || [];
-  const entradasSeleccionadas = JSON.parse(sessionStorage.getItem("entradasSeleccionadas")) || [];
+  const platosVariedad = JSON.parse(sessionStorage.getItem("platosVariedad")) || [];
   const ingredientesPorPlato = JSON.parse(sessionStorage.getItem("ingredientesSeleccionadosPorPlato") || "{}");
 
   // --- FILTRAR platos que están dentro de barcos ---
   const platosEnBarcoNombres = new Set();
-  if (pedidoBarco.barcos?.length > 0) {
-    pedidoBarco.barcos.forEach(barco => {
+  if (platosGrandes.barcos?.length > 0) {
+    platosGrandes.barcos.forEach(barco => {
       barco.platos.forEach(plato => {
         const nombrePlato =
           typeof plato.nombre === "string"
@@ -320,7 +333,7 @@ const handleEnviar = () => {
 
   // --- Mensaje platos ---
   let mensajePlatos = "";
-  platosSeleccionados.forEach((plato) => {
+  platosPequeños.forEach((plato) => {
     const nombrePlato =
       typeof plato.nombre === "string"
         ? plato.nombre
@@ -350,25 +363,25 @@ const handleEnviar = () => {
     });
   });
 
-  // --- Mensaje entradas ---
-  let mensajeEntradas = "";
-  entradasSeleccionadas.forEach((plato) => {
+  // --- Mensaje variedad ---
+  let mensajevariedad = "";
+  platosVariedad.forEach((plato) => {
     const nombrePlato = typeof plato.nombre === "string"
       ? plato.nombre
       : plato.nombre?.es || plato.nombre?.value || JSON.stringify(plato.nombre);
 
-    mensajeEntradas += `- ${nombrePlato} (x${plato.cantidad || 1})\n`;
+    mensajevariedad += `- ${nombrePlato} (x${plato.cantidad || 1})\n`;
 
     if (plato.ingredientes?.length) {
-      mensajeEntradas += `  • Sabores:\n`;
+      mensajevariedad += `  • Sabores:\n`;
       plato.ingredientes.forEach(({ nombre, tempuraFrio }) => {
         const mostrarTempuraFrio = nombrePlato !== "Naganos" && tempuraFrio;
-        mensajeEntradas += `    - ${nombre}${mostrarTempuraFrio ? ` (${tempuraFrio})` : ""}\n`;
+        mensajevariedad += `    - ${nombre}${mostrarTempuraFrio ? ` (${tempuraFrio})` : ""}\n`;
       });
     }
 
-    if (plato.tempura && nombrePlato !== "Naganos") mensajeEntradas += `  • Tempura (plato)\n`;
-    if (plato.frio && nombrePlato !== "Naganos") mensajeEntradas += `  • Frío (plato)\n`;
+    if (plato.tempura && nombrePlato !== "Naganos") mensajevariedad += `  • Tempura (plato)\n`;
+    if (plato.frio && nombrePlato !== "Naganos") mensajevariedad += `  • Frío (plato)\n`;
   });
 
   // --- Mensaje extras generales ---
@@ -385,24 +398,24 @@ const handleEnviar = () => {
   }
 
   // --- Mensaje barcos ---
-  let mensajeBarco = "";
-  if (pedidoBarco.barcos?.length > 0) {
-    mensajeBarco += `⛵ *Barcos de Sushi:*\n\n`;
-    pedidoBarco.barcos.forEach((barco) => {
+  let mensajeCombos = "";
+  if (platosGrandes.barcos?.length > 0) {
+    mensajeCombos += `\n`;
+    platosGrandes.barcos.forEach((barco) => {
       const esSushiTorta = barco.tipo?.toLowerCase().includes("sushi");
       const titulo = esSushiTorta ? `*- ${barco.tipo}*` : `*- Barco ${barco.tamaño} piezas*`;
-      mensajeBarco += `${titulo}\n`;
-      if (barco.croqueta) mensajeBarco += `• Croqueta incluida\n`;
-      if (barco.ensalada) mensajeBarco += `• Ensalada incluida\n`;
-      mensajeBarco += `🍣 *Platos:*\n`;
+      mensajeCombos += `${titulo}\n`;
+      if (barco.croqueta) mensajeCombos += `• Croqueta incluida\n`;
+      if (barco.ensalada) mensajeCombos += `• Ensalada incluida\n`;
+      mensajeCombos += `🍣 *Platos:*\n`;
       barco.platos.forEach((plato) => {
-        mensajeBarco += `- ${plato.nombre} (x${plato.cantidad || 1})\n`;
+        mensajeCombos += `- ${plato.nombre} (x${plato.cantidad || 1})\n`;
         const detalles = [];
         if (plato.tempura) detalles.push("Tempura");
         if (plato.frio) detalles.push("Frío");
-        if (detalles.length > 0) mensajeBarco += `  • ${detalles.join(" / ")}\n`;
+        if (detalles.length > 0) mensajeCombos += `  • ${detalles.join(" / ")}\n`;
       });
-      mensajeBarco += `\n`;
+      mensajeCombos += `\n`;
     });
   }
 
@@ -436,12 +449,12 @@ if (promo && promo.length > 0) {
 
 
   // --- Construcción final ---
-  let mensaje = "*Nuevo pedido:*\n\n";
+  let mensaje = "*Nuevo pedido:\n";
   if (mensajePromo) mensaje += mensajePromo;
-  if (mensajeEntradas) mensaje += `🍱 *Entradas:*\n${mensajeEntradas}\n`;
-  if (mensajePlatos) mensaje += `🍣 *Rolls:*\n${mensajePlatos}\n`;
+  if (mensajePlatos) mensaje += `🍗 *Combos:*\n${mensajePlatos}\n`;
+  if (mensajeCombos) mensaje += mensajeCombos;
+  if (mensajevariedad) mensaje += `*\n${mensajevariedad}\n`;
   if (mensajeExtrasGenerales) mensaje += mensajeExtrasGenerales;
-  if (mensajeBarco) mensaje += mensajeBarco;
   mensaje += `💰 *Total:* ${formatearPrecio(total, pago)}\n\n`;
   mensaje += `🛵 *Delivery:* ${formatearPrecio(tarifaDelivery, pago)}\n\n`;
   mensaje += `🙍‍♂️ *Nombre:* ${datos.nombre}\n`;
@@ -469,7 +482,7 @@ if (sonidoConfirmacion) {
 
 // Redirigir a WhatsApp después de 2 segundos
 setTimeout(() => {
-  const numeroWhatsApp = "584241592293";
+  const numeroWhatsApp = "584124835918";
   const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
   window.location.href = urlWhatsApp;
   setMostrarModal(false);
@@ -481,52 +494,18 @@ setTimeout(() => {
 
  return (
   <div className="pt-4 pb-6 min-h-screen flex items-start justify-center fondo px-6">
-    <div className="bg-white p-8 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center relative mt-20 sm:mt-16">
-      <h1 className="text-xl font-bold text-red-600 text-center mb-4">¡Más que un sushi! 🍣</h1>
-
+    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center relative mt-20 sm:mt-16">
+  {/* Logo */}
+      <div className="flex items-center justify-center mb-4">
+        <img
+          src={Picapollo}
+          alt="Logotipo PicaPollo"
+          className="w-40 h-30 object-cover"
+        />
+      </div>
       <p className="text-red-600 font-bold mb-2 text-center">Resumen</p>
       <div className="text-sm text-left space-y-1 mb-4">
  {detalleProductos.map((item, index) => {
-  if (item.esBarco) {
-    const tieneContenido =
-      (item.subproductos && item.subproductos.length > 0) ||
-      item.precio > 0 ||
-      item.croqueta ||
-      item.ensalada;
-
-    if (!tieneContenido) return null;
-
-    const tituloBarco = item.tipo?.toLowerCase().includes("sushi")
-      ? `${item.tipo} (${item.tamaño} piezas)`
-      : `Barco - ${item.tamaño} piezas`;
-
-    return (
-      <div key={item.id || index} className="mb-3 rounded-xl p-2">
-        <div className="flex items-center justify-between mb-1 font-semibold text-gray-800">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => confirmarEliminacion(item)}  
-              className="text-red-600 hover:text-red-800"
-              title="Eliminar"
-            >
-              <Trash2 size={18} />
-            </button>
-            <span>{tituloBarco}</span>
-          </div>
-          <span className="font-bold text-red-600">
-            {formatearPrecio(item.precio)}
-          </span>
-        </div>
-        <div className="ml-7 text-sm text-gray-700 space-y-1">
-          {item.subproductos?.map((sub, i) => (
-            <div key={i}>• {sub.nombre}</div>
-          ))}
-          {item.croqueta && <div>• Croqueta incluida</div>}
-          {item.ensalada && <div>• Ensalada incluida</div>}
-        </div>
-      </div>
-    );
-  }
 
  if (item.esPromo) {
   let textoPromo = `${item.nombre}`;
@@ -648,7 +627,7 @@ setTimeout(() => {
       {/* Método de pago */}
       <p className="text-red-600 font-bold mb-2 text-center">Método de pago</p>
       <div className="flex flex-wrap justify-center gap-3 mb-4 text-sm">
-        {["Pago Móvil", "Zelle", "Efectivo"].map((metodo) => (
+        {["Pago Móvil", "Zelle", "Efectivo", "Tarjeta"].map((metodo) => (
           <label key={metodo} className="flex items-center gap-2 cursor-pointer">
             <input
               type="radio"
@@ -781,6 +760,14 @@ setTimeout(() => {
               className="p-2 w-full bg-transparent placeholder-gray-400 focus:outline-none text-center"
               placeholder="10"
             />
+          </div>
+        </div>
+      )}
+
+      {pago === "Tarjeta" && (
+        <div className="mb-4 w-full p-3 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none">
+          <div className="text-center text-gray-700">
+            <strong>Información:</strong> Sólo para consumición en el local, Cuando guste puede cancelar, ¡Muchas Gracias!
           </div>
         </div>
       )}

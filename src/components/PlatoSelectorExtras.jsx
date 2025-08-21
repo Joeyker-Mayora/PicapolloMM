@@ -159,7 +159,7 @@ const PlatoSelectorExtras = ({ onSeleccion, platosDisponibles = [] }) => {
         styles={customStyles}
         placeholder="Selecciona un Extra"
         onChange={handleSelect}
-        menuPlacement="auto"
+        menuPlacement="top" // fuerza que siempre abra hacia arriba
         isSearchable={false}
       />
 
@@ -167,7 +167,7 @@ const PlatoSelectorExtras = ({ onSeleccion, platosDisponibles = [] }) => {
         {platosSeleccionados.map((plato) => (
           <div key={plato.id} className="bg-white shadow-md rounded-lg p-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <h3 className="font-bold text-gray-900 text-lg flex items-center justify-between sm:justify-start">
+              <h3 className="font-extrabold text-orange-600 text-lg flex items-center justify-between sm:justify-start">
                 {plato.nombre}
                 {extras[plato.nombre]?.modal && (
                   <button

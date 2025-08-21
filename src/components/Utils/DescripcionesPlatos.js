@@ -2,318 +2,137 @@ import img from "../../img/promo.png"
 import imgTottori from "../../img/tottori.jpeg"
 import imgkyoto from "../../img/kyoto.jpeg"
 
-export const descripcionesPlatos = {
-  "Kawasakis ROLL": {
-    piezas: "¡18 piezas de makis🍣!",
-    ingredientes: {
-      proteinas: ["Atún", "Salmón", "Cangrejo"],
-      verduras: ["Aguacate", "Pepino"],
-      
-    },
-    preparacion: "Unicamente Frios",
-    precio: "1600,00"
+export const combosPequeños = {
+  "Super ": {
+    piezas: "¡2 piezas de pollo!",
+    tipo: "Muslo y ala",
+    descripcion: "Ensalada, 3 arepitas y Bebida (Refresco de 1lt)",
+    permitirBebida: true,
+    preparacion: " Papitas+ Bebida",
+    precio: "5"
   },
-  "Tottori ROLL": {
-     
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Camarones al vapor, kani en tiras, y aguacate",
-    topping: "Tartar de atun aderezado",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1440,00"
-
+  "Jumbo": {
+    piezas: "¡3 piezas de pollo!",
+    tipo: "Muslo, cuadril y ala",
+    descripcion: "Ensalada, 4 arepitas y Bebida (Refresco de 1lt)",
+    permitirBebida: true,
+    preparacion: "Papitas + Bebida ",
+    precio: "7"
   },
-  "Tochigui ROLL": {
-     
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Atún, cangrejo, aguacate y cebollín",
-    topping: "wakame",
-    aderezo: "maracuya",
-    permitirTempuraYFrio: false,
-    preparacion: "Unicamente Frios",
-    precio: "1600,00"
-  },
-  "Kagawa ROLL": {
-     
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Doble camarón, aguacate, mango y queso crema",
-    topping: "Camarones Tempura (Bañados en aderezos).",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1600,00"
+  "Duo": {
+    piezas: "¡4 piezas de pollo!",
+    tipo: " 2 Muslos, cuadril y ala",
 
-  },
-  "Hiroshima ROLL": {
-     
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Salmón, cangrejo, aguacate y queso crema",
-    topping: "Tartar de salmón, aguacate y mango",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1600,00"
-  },
-  "Hyogos ROLL": {
-     
-    piezas: "¡4 piezas🍣!",
-    descripcion: "Envuelto en hojas de arroz",
-    ingredientes:[
-        "Cangrejo(kani), aguacate y fuji",
-        "Camarones al vapor, aguacate y cebollin",
-        "Ensalada Dinamita",
-        "Salmón, aguacate y cebollin"
-    ],
-    preparacion: "Unicamente Frios",
-    precio: "1440,00"
-
-  },
-  "Yokohama ROLL": {
-     
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Camarónes, aguacate, queso crema, miel trufada y cebollin",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1440,00"
-  },
-  "Shibuya ROLL": { 
-    piezas: "¡1 pieza🍣!",
-    descripcion: "Enrrollado de pasta de camarones y aguacate", 
-    permitirTempuraYFrio: false,
-    preparacion: "Mitad frio, mitad Tempura",
-    precio: "1280,00"
-    
-  },
-  "Osaka ROLL": { 
-     
-    piezas: "¡1 pieza🍣!",
-    descripcion: "Camarones, ensalada dinamita, aguacate y cebollin. (Sushi Hot dog)", 
-    permitirTempuraYFrio: false,
-    preparacion: "Unicamente Tempura",
-    precio: "1280,00"
-    
-  },
- "Kyushu ROLL": { 
-    
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Cangrejo(kani), aguacate, queso crema,",
-     topping: "Ensalada dinamita",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1280,00"
-     
-    },
- "Okinawa ROLL": { 
-   
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Salmón y queso crema,",
-     topping: "Aguacate",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1280,00"
-     
-    },
- "Tokyo ROLL": { 
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Camarones aguacate y queso crema,",
-     topping: "Aguacate",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1120,00"
-     
-    },
- "Ukiyo ROLL": { 
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Cangrejo(kani), camarones, aguacate, queso crema y pepino.",
-     topping: "Kani tempura en tiras",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1440,00"
-     
-    },
- "Kobe ROLL": { 
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Cangrejo(kani) y aguacate.",
-     topping: "Platano",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1120,00"
-     
-    },
- "Toyama ROLL": { 
-    piezas: "¡10 piezas🍣!",
-    descripcion: "Ensalada de kani, cebollin y aguacate.",
-     topping: "Tiras de kani con queso crema",
-    permitirTempuraYFrio: true,
-    preparacion: " ",
-    precio: "1280,00"
-     
-    },
-
-  "Tohoku ROLL": {
-    piezas: "¡2 piezas🍣!",
-    descripcion: "Sushi Sandwich",
-    ingredientes:[
-        "Cangrejo(kani), aguacate y queso crema",
-        "Pasta de camarones y aguacate.",
-        "Ensalada Dinamita",
-        "Salmón, platano y queso crema"
-    ],
-    preparacion: "Unicamente Tempura",
-    precio: "960,00"
-
-  },
-};
-
-export const entradas = {
-  "Ensalada Dinamita": {
-    
-    modal: false,
-    precio: "960,00"
-},
-
-  "Ensalada Neptuno": {
-    
-     
-     modal: false,
-     precio: "1280,00"
-  },
-
-  "Tartar de salmon": {
-    modal: false,
-    precio: "1280,00"
-  },
-
-  "Croquetas de pescado": {
-     
-    piezas: "¡5 piezas de makis🍣!",
-    preparacion: "Unicamente Tempura",
-    modal: false,
-    precio: "800,00"
-  },
-
-  "Croquetas de cangrejo": {
-     
-    piezas: "¡5 piezas🍣!",
-    preparacion: "Unicamente Tempura",
-    modal: false,
-    precio: "800,00"
-
-  },
-
-  "Oniguiris": {
-     
-    piezas: "¡3 piezas🍣!",
-    descripcion: "",
-    ingredientes: [
-      "Cangrejo(kani) con queso crema",
-      "Camarones bañados en aderezo",
-      "Ensalada Dinamita",
-      "Salmón con mayo Spicy",
-      "Tartar de Salmón",
-      "Tartar de Atún",
-    ],
-    preparacion: " ",
-    aderezo: "",
-    modal: true,
-    precio: "1120,00"
-
-  },
-
-  "Naganos": {
-     
-    piezas: "¡6 piezas🍣!",
-    descripcion: "",
-    ingredientes: [
-      "Cangrejo(kani) con queso crema",
-      "Pasta de camarones",
-      "Ensalada Dinamita",
-      "Salmón tempura y queso crema",
-      "Aguacate y queso crema",
-      "Platano y queso crema",
-
-    ],
-    preparacion: "Unicamente Tempura",
-    aderezo: "",
-    modal: true,
-    precio: "1120,00"
+    descripcion: "Ensalada, 6 arepitas y Bebida (Refresco de 1lt)",
+    permitirBebida: true,
+    preparacion: "Papitas + Bebida ",
+    precio: "10"
   },
   
-  "Niguiris": {
-     
-    piezas: "¡4 piezas🍣!",
-    descripcion: "Salmón, cangrejo, atún y aguacate.",
-    preparacion: " ",
-    modal: true,
-    precio: "1120,00"
-  },
-  "Miyazakis": {
-     
-  piezas: "¡2 piezas🍣!",
-  descripcion: "Envuelta en base de arroz",
-  modal: true,
-  precio: "1120,00",
-  piezasDetalles: [
-    "Ensalada de kani con queso crema, incluye aderezos",
-    "Camarones tempura, bañados en aderezo y aguacate"
-  ]
-}
-
+  
 };
+
+export const combosGrandes = {
+  "Familiar ": {
+    piezas: "¡8 piezas de pollo!",
+    tipo: "Muslo y ala",
+    descripcion: "Ración de papas fritas, ensalada, 10 arepitas, 2 helados y bebida (Refresco de 1lt)",
+    permitirBebida: true,
+    preparacion: " Papitass + Bebida",
+    precio: "20"
+  },
+  "Junior": {
+    piezas: "¡6 piezas de pollo!",
+    tipo: "Muslo, cuadril y ala",
+    descripcion: "Ración de papas fritas, ensalada, 8 arepitas, 2 helados y bebida (Refresco de 1lt)",
+    permitirBebida: true,
+    preparacion: "Papitas + Bebida ",
+    precio: "15"
+  },
+  "Gigante": {
+    piezas: "¡5 piezas de pollo!",
+    tipo: " 2 Muslos, cuadril y ala",
+
+    descripcion: "Ración de papas fritas, ensalada, 7 arepitas, 1 helado y bebida (Refresco de 1lt)",
+    permitirBebida: true,
+    preparacion: "Papitas + Bebida ",
+    precio: "12"
+  },
+  
+  
+};
+
+
+export const hamburguesasYMas = {
+  "Burguer Pollo-Crispy": {
+    descripcion: "Milanesa empanizada, ración de papas fritas, vegetales, salsas tradicionales y bebida (Refresco de 1lt)",
+    permitirBebida: true,
+    preparacion: "Papitas + Bebida ",
+    precio: "5"
+  },
+  "Deluxe": {
+    descripcion: "Pan de oregano, milanesa empanizada, ración de papas fritas, vegetales, salsas tradicionales ",
+    permitirBebida: false,
+    preparacion: "Papas Fritas ",
+    precio: "5"
+  },
+
+  "Alitas de pollo": {
+    piezas: "¡6 piezas de alita!",
+    descripcion: "Ración de papas fritas, salsa BBQ, Tartara.",
+    permitirBebida: false,
+    preparacion: "Papas Fritas ",
+    precio: "5"
+  },
+  "Tenders de pollo": {
+    descripcion: " 5 Tenders, ración de papas fritas, un helado y bebida (Refresco de 1lt).",
+    permitirBebida: true,
+    preparacion: "Papas Fritas ",
+    precio: "5"
+  },
+  "SalchiPollo": {
+    descripcion: "100gr de papas fritas, salchichas y cop de pollo salsa BBQ, Tartara.",
+    permitirBebida: false,
+    preparacion: "Papas Fritas ",
+    precio: "3"
+  },
+  "SalchiPapas": {
+    descripcion: "100gr de papas fritas,100gr de salchichas y salsas tradicionales.",
+    permitirBebida: false,
+    preparacion: "Papas Fritas ",
+    precio: "2"
+  },
+
+}
 
 
 export const extras = {
-  "camarones Tempura": {
-    
-    modal: true,
-    precio: "320,00"
-  },
-  "Cangrejo (kani)": {
-    
-    modal: true,
-    precio: "320,00"
-  },
-  "Salmón": {
-    
-    modal: true,
-    precio: "480,00"
-  },
-  "Atún": {
-    
-    modal: true,
-    precio: "480,00"
-  },
-  "Aderezo Anguila": {
+  "Ración de Papitas": {
     
     modal: false,
-    precio: "120,00"
+    precio: "3"
   },
-  "Aderezo Fuji": {
+  "Ensalada": {
     
     modal: false,
-    precio: "120,00"
+    precio: "1"
   },
-  "Mayo Spicy": {
+  "Racion de Arepitas": {
     
     modal: false,
-    precio: "120,00"
+    precio: "1"
   },
-  "Aderezo Maracuya": {
+  "Helado Tinita": {
     
     modal: false,
-    precio: "120,00"
+    precio: "1"
   },
-  "Wasabi": {
+  "Cocacola 2lt": {
     
     modal: false,
-    precio: "120,00"
-
-
+    precio: "2"
   },
-  "Gengibre": {
-    
-    modal: false,
-    precio: "120,00"
-
-  },
+ 
 };
 
   
@@ -329,17 +148,17 @@ export const modals = [
       {
         nombre: "Promo 20 Piezas",
         subpromos: [
-          { nombre: "Promo Gohan ", precio: "2080,00" },
-          { nombre: "Promo Classic", precio: "1760,00" }
+          { nombre: "Promo Gohan ", precio: "2080" },
+          { nombre: "Promo Classic", precio: "1760" }
         ],
       },
       {
         nombre: " Promo 30 Piezas",
-        precio: "3360,00",
+        precio: "3360",
       },
       {
         nombre: " Promo 40 Piezas",
-        precio: "4480,00",
+        precio: "4480",
       }
     ]
   },
@@ -351,7 +170,7 @@ export const modals = [
     promos: [
       {
         nombre: "Tottori ROLL",
-        precio: "1440,00",
+        precio: "1440",
       },
     ]
   },
@@ -362,7 +181,7 @@ export const modals = [
     promos: [
       {
         nombre: "Kyoto",
-        precio: "3360,00",
+        precio: "3360",
       },
     ]
   },

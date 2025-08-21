@@ -3,7 +3,7 @@ import Select from "react-select";
 import Modal from "react-modal";
 import { Plus, Minus, Trash2, Info } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-import {descripcionesPlatos} from "./Utils/DescripcionesPlatos";
+import {combosPequeños} from "./Utils/DescripcionesPlatos";
 import { nanoid } from "nanoid";
 import { customStyles, ModalAnimado } from "./Utils/CustomStyles";
 import { showSuccess, showError } from "./Utils/toastUtils";
@@ -11,7 +11,7 @@ import { useItems } from "../Hooks/useItems";
 
 
 
-const opcionesPlatos = Object.keys(descripcionesPlatos).map((item) => ({
+const opcionesPlatos = Object.keys(combosPequeños).map((item) => ({
   label: item,
   value: item,
 }));
@@ -76,7 +76,7 @@ const PlatoSelector = ({ onSeleccion }) => {
   };
 
   const agregarOActualizarPlato = (platoNombre) => {
-  const precio = descripcionesPlatos[platoNombre]?.precio || "0";
+  const precio = combosPequeños[platoNombre]?.precio || "0";
   const nuevoId = nanoid();
 
   // Inicializar ingredientes por id (nuevoId), no por nombre
@@ -269,7 +269,7 @@ const PlatoSelector = ({ onSeleccion }) => {
       return;
     }
 
-    const permitirChecks = descripcionesPlatos[nombre]?.permitirTempuraYFrio;
+    const permitirChecks = combosPequeños[nombre]?.permitirTempuraYFrio;
     if (permitirChecks && !platoTemporal.tempura && !platoTemporal.frio) {
       showError("Debes seleccionar Tempura o Frío.");
       return;
@@ -351,7 +351,7 @@ const PlatoSelector = ({ onSeleccion }) => {
 
     <div className="space-y-4 mt-4">
       {platosSeleccionados.map((plato) => {
-        const mostrarChecks = descripcionesPlatos[plato.nombre]?.permitirTempuraYFrio;
+        const mostrarChecks = combosPequeños[plato.nombre]?.permitirTempuraYFrio;
 
         return (
           <div key={plato.id} className="bg-white shadow-md rounded-lg p-4">
@@ -399,11 +399,11 @@ const PlatoSelector = ({ onSeleccion }) => {
                 categorias={[
                   {
                     categoria: "proteinas",
-                    items: descripcionesPlatos[plato.nombre]?.ingredientes?.proteinas ?? [],
+                    items: combosPequeños[plato.nombre]?.ingredientes?.proteinas ?? [],
                   },
                   {
                     categoria: "verduras",
-                    items: descripcionesPlatos[plato.nombre]?.ingredientes?.verduras ?? [],
+                    items: combosPequeños[plato.nombre]?.ingredientes?.verduras ?? [],
                   },
                 ]}
               />
@@ -411,7 +411,7 @@ const PlatoSelector = ({ onSeleccion }) => {
               <>
                 <p className="mt-2 font-semibold text-red-600">Ingredientes:</p>
                 <CheckListSimple
-                  ingredientes={descripcionesPlatos[plato.nombre]?.ingredientes || []}
+                  ingredientes={combosPequeños[plato.nombre]?.ingredientes || []}
                   platoId={plato.id}
                 />
               </>
@@ -464,15 +464,15 @@ const PlatoSelector = ({ onSeleccion }) => {
             {modalDescripcionInfo.nombre}
           </h2>
 
-          {descripcionesPlatos[modalDescripcionInfo.nombre]?.piezas && (
+          {combosPequeños[modalDescripcionInfo.nombre]?.piezas && (
             <p className="font-semibold text-red-600 mb-1">
-              {descripcionesPlatos[modalDescripcionInfo.nombre].piezas}
+              {combosPequeños[modalDescripcionInfo.nombre].piezas}
             </p>
           )}
 
-          {descripcionesPlatos[modalDescripcionInfo.nombre]?.descripcion && (
+          {combosPequeños[modalDescripcionInfo.nombre]?.descripcion && (
             <p className="mb-3">
-              {descripcionesPlatos[modalDescripcionInfo.nombre].descripcion}
+              {combosPequeños[modalDescripcionInfo.nombre].descripcion}
             </p>
           )}
 
@@ -486,11 +486,11 @@ const PlatoSelector = ({ onSeleccion }) => {
                 categorias={[
                   {
                     categoria: "proteinas",
-                    items: descripcionesPlatos["Kawasakis ROLL"]?.ingredientes?.proteinas || [],
+                    items: combosPequeños["Kawasakis ROLL"]?.ingredientes?.proteinas || [],
                   },
                   {
                     categoria: "verduras",
-                    items: descripcionesPlatos["Kawasakis ROLL"]?.ingredientes?.verduras || [],
+                    items: combosPequeños["Kawasakis ROLL"]?.ingredientes?.verduras || [],
                   },
                 ]}
               />
@@ -503,7 +503,7 @@ const PlatoSelector = ({ onSeleccion }) => {
                 Debes elegir <strong>2 sabores</strong>.
               </p>
               <CheckListSimple
-                ingredientes={descripcionesPlatos["Hyogos ROLL"]?.ingredientes || []}
+                ingredientes={combosPequeños["Hyogos ROLL"]?.ingredientes || []}
                 platoId={modalDescripcionInfo.id}
               />
             </>
@@ -515,24 +515,24 @@ const PlatoSelector = ({ onSeleccion }) => {
                 Debes elegir <strong>1 sabor</strong>.
               </p>
               <CheckListSimple
-                ingredientes={descripcionesPlatos["Tohoku ROLL"]?.ingredientes || []}
+                ingredientes={combosPequeños["Tohoku ROLL"]?.ingredientes || []}
                 platoId={modalDescripcionInfo.id}
               />
             </>
           )}
 
-          {descripcionesPlatos[modalDescripcionInfo.nombre]?.topping && (
+          {combosPequeños[modalDescripcionInfo.nombre]?.topping && (
             <p className="mt-3 italic text-gray-700">
-              Topping: {descripcionesPlatos[modalDescripcionInfo.nombre].topping}
+              Topping: {combosPequeños[modalDescripcionInfo.nombre].topping}
             </p>
           )}
-          {descripcionesPlatos[modalDescripcionInfo.nombre]?.aderezo && (
+          {combosPequeños[modalDescripcionInfo.nombre]?.aderezo && (
             <p className="mt-1 italic text-gray-700">
-              Aderezo: {descripcionesPlatos[modalDescripcionInfo.nombre].aderezo}
+              Aderezo: {combosPequeños[modalDescripcionInfo.nombre].aderezo}
             </p>
           )}
 
-          {descripcionesPlatos[modalDescripcionInfo.nombre]?.permitirTempuraYFrio && (
+          {combosPequeños[modalDescripcionInfo.nombre]?.permitirTempuraYFrio && (
             <div className="mt-3 flex flex-col gap-2">
               <label className="inline-flex items-center text-sm">
                 <input
@@ -561,7 +561,7 @@ const PlatoSelector = ({ onSeleccion }) => {
 
           <div className="mt-6 flex justify-between items-center">
             <p className="font-semibold text-red-600">
-              {descripcionesPlatos[modalDescripcionInfo.nombre]?.preparacion ||
+              {combosPequeños[modalDescripcionInfo.nombre]?.preparacion ||
                 "Preparación no especificada"}
             </p>
             <button

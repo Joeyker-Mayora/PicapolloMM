@@ -1,16 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap');
 
-
 .fondo {
-  background-image: url('./img/fondo.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: linear-gradient(to bottom, #ffffff, #ff9f00, #ff0000);
   width: 100%;
-  background-attachment: fixed; /* para que no se corte al hacer scroll */
   min-height: 100vh;
-   
+  background-attachment: fixed; /* mantiene el gradiente al hacer scroll */
 }
+
+
+#root, body, html {
+  min-height: 100vh;
+}
+
+
 
 body {
   padding-top: env(safe-area-inset-top, 1rem);
