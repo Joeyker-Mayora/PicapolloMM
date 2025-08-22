@@ -5,6 +5,7 @@ import PedidoForm from "./pages/PedidoForm"
 import { ToastContainer } from "react-toastify";
 import Footer from "./components/Footer/Footer";
 import PedidoResumen from "./pages/PedidoResumen"
+import SocialFixed from "./components/SocialFixed";
 
 
 
@@ -12,6 +13,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Navbar/>
+      <SocialFixed/>
       
       <Routes>
         <Route path="/" element={<RealizarPedido/>} />
