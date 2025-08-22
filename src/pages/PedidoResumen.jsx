@@ -212,7 +212,7 @@ useEffect(() => {
   formData.append("upload_preset", uploadPreset);
 
   // 👇 aquí defines la carpeta de destino
-  formData.append("folder", "app2_comprobantes"); 
+  formData.append("folder", "picapollomm"); 
 
   try {
     const response = await fetch(
