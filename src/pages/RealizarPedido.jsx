@@ -8,6 +8,8 @@ import { PageModal } from '../components/Utils/CustomStyles';
 import PlatosCombosPequeños from '../components/PlatosCombosPequeños';
 import PlatosCombosGrandes from '../components/PlatosCombosGrandes';
 import PlatosVariedad from '../components/PlatosVariedad';
+import { ChevronUp } from "lucide-react";
+
 const RealizarPedido = () => {
   const [seleccionEntradas, setSeleccionEntradas] = useState([]);
   const [seleccionRoles, setSeleccionRoles] = useState([]);
@@ -16,6 +18,7 @@ const RealizarPedido = () => {
   const [croqueta, setCroqueta] = useState(false);
   const [ensalada, setEnsalada] = useState(false);
   const [interactivoBarcos, setInteractivoBarcos] = useState(false);
+
 
   const [mostrarModal, setMostrarModal] = useState(false);
   const [indiceImagen, setIndiceImagen] = useState(-1);
@@ -125,7 +128,7 @@ const RealizarPedido = () => {
         </div>
 
         <div className="flex flex-col items-center select-none cursor-default">
-        <span className="text-orange-400 font-medium text-sm">⮝</span>
+          <ChevronUp className="text-orange-400 w-4 h-4" />
           <span className="text-orange-500 font-bold text-sm">¡Pulsa para ver el menu!</span>
         </div>
 

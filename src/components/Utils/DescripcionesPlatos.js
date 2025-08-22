@@ -5,25 +5,25 @@ import imgkyoto from "../../img/kyoto.jpeg"
 export const combosPequeños = {
   "Super ": {
     piezas: "¡2 piezas de pollo!",
-    tipo: "Muslo y ala",
-    descripcion: "Ensalada, 3 arepitas y Bebida (Refresco de 1lt)",
+    tipo: "Cuadril y Muslo",
+    descripcion: "Ensalada, 3 arepitas y Bebida (Refresco de 500ml)",
     permitirBebida: true,
-    preparacion: " Papitas+ Bebida",
+    preparacion: " Papitas + Bebida",
     precio: "5"
   },
   "Jumbo": {
     piezas: "¡3 piezas de pollo!",
-    tipo: "Muslo, cuadril y ala",
-    descripcion: "Ensalada, 4 arepitas y Bebida (Refresco de 1lt)",
+    tipo: "Muslo, cuadril y alita",
+    descripcion: "Ensalada, 4 arepitas y Bebida (Refresco de 500ml)",
     permitirBebida: true,
     preparacion: "Papitas + Bebida ",
     precio: "7"
   },
   "Duo": {
     piezas: "¡4 piezas de pollo!",
-    tipo: " 2 Muslos, cuadril y ala",
+    tipo: "Muslos, pechuga, cuadril y alita",
 
-    descripcion: "Ensalada, 6 arepitas y Bebida (Refresco de 1lt)",
+    descripcion: "Ensalada, 6 arepitas y Bebida (Refresco de 500ml)",
     permitirBebida: true,
     preparacion: "Papitas + Bebida ",
     precio: "10"
@@ -35,28 +35,37 @@ export const combosPequeños = {
 export const combosGrandes = {
   "Familiar ": {
     piezas: "¡8 piezas de pollo!",
-    tipo: "Muslo y ala",
-    descripcion: "Ración de papas fritas, ensalada, 10 arepitas, 2 helados y bebida (Refresco de 1lt)",
+    tipo: "2 Muslos, 2 pechugas, 2 cuadril y 2 alitas",
+    descripcion: "Ración de papas fritas, ensalada, 10 arepitas, 2 helados y bebida (Refresco de 500ml)",
     permitirBebida: true,
     preparacion: " Papitass + Bebida",
     precio: "20"
   },
   "Junior": {
     piezas: "¡6 piezas de pollo!",
-    tipo: "Muslo, cuadril y ala",
-    descripcion: "Ración de papas fritas, ensalada, 8 arepitas, 2 helados y bebida (Refresco de 1lt)",
+    tipo: " 2 Muslo, 2 cuadril y 2 alitas",
+    descripcion: "Ración de papas fritas, ensalada, 8 arepitas, 2 helados y bebida (Refresco de 500ml)",
     permitirBebida: true,
     preparacion: "Papitas + Bebida ",
     precio: "15"
   },
   "Gigante": {
     piezas: "¡5 piezas de pollo!",
-    tipo: " 2 Muslos, cuadril y ala",
+    tipo: "Muslos, cuadril y 2 alitas",
 
-    descripcion: "Ración de papas fritas, ensalada, 7 arepitas, 1 helado y bebida (Refresco de 1lt)",
+    descripcion: "Ración de papas fritas, ensalada, 7 arepitas, 1 helado y bebida (Refresco de 500ml)",
     permitirBebida: true,
     preparacion: "Papitas + Bebida ",
     precio: "12"
+  },
+  "Bestial": {
+    piezas: " ",
+    tipo: " ",
+
+    descripcion: "Un pollo completo, dos hamburguesas pollo crispy, racion de papas fritas, y tres helados de tinita",
+    permitirBebida: true,
+    preparacion: "Papitas + Bebida ",
+    precio: "30"
   },
   
   
@@ -65,7 +74,7 @@ export const combosGrandes = {
 
 export const hamburguesasYMas = {
   "Burguer Pollo-Crispy": {
-    descripcion: "Milanesa empanizada, ración de papas fritas, vegetales, salsas tradicionales y bebida (Refresco de 1lt)",
+    descripcion: "Milanesa empanizada, ración de papas fritas, vegetales, salsas tradicionales y bebida (Refresco de 500ml)",
     permitirBebida: true,
     preparacion: "Papitas + Bebida ",
     precio: "5"
@@ -85,7 +94,7 @@ export const hamburguesasYMas = {
     precio: "5"
   },
   "Tenders de pollo": {
-    descripcion: " 5 Tenders, ración de papas fritas, un helado y bebida (Refresco de 1lt).",
+    descripcion: " 5 Tenders, ración de papas fritas, un helado y bebida (Refresco de 500ml).",
     permitirBebida: true,
     preparacion: "Papas Fritas ",
     precio: "5"

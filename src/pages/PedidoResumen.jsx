@@ -195,44 +195,51 @@ useEffect(() => {
 
 
 
-  const handleImagenChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+ const handleImagenChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showError("La imagen debe pesar menos de 5MB");
-      return;
-    }
+  if (file.size > 5 * 1024 * 1024) {
+    showError("La imagen debe pesar menos de 5MB");
+    return;
+  }
 
-    setImagen(file);
-    setSubiendo(true);
+  setImagen(file);
+  setSubiendo(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
 
-    try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+  // 👇 aquí defines la carpeta de destino
+  formData.append("folder", "app2_comprobantes"); 
+
+  try {
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+      {
         method: "POST",
         body: formData,
-      });
-
-      const data = await response.json();
-
-      if (data.secure_url) {
-        setUrlImagen(data.secure_url);
-        showSuccess("Imagen subida ");
-      } else {
-        showError("Error subiendo imagen a Cloudinary");
-        console.error("Respuesta inválida de Cloudinary:", data);
       }
-    } catch (error) {
-      showError("Error subiendo la imagen");
-      console.error("Error al subir imagen a Cloudinary:", error);
-    } finally {
-      setSubiendo(false);
+    );
+
+    const data = await response.json();
+
+    if (data.secure_url) {
+      setUrlImagen(data.secure_url);
+      showSuccess("Imagen subida ");
+    } else {
+      showError("Error subiendo imagen a Cloudinary");
+      console.error("Respuesta inválida de Cloudinary:", data);
     }
-  };
+  } catch (error) {
+    showError("Error subiendo la imagen");
+    console.error("Error al subir imagen a Cloudinary:", error);
+  } finally {
+    setSubiendo(false);
+  }
+};
+
 
   const confirmarEliminacion = (info) => {
     setProductoAEliminar(info);
@@ -653,20 +660,20 @@ setTimeout(() => {
             {pago === "Pago Móvil" ? (
               <>
                 <div className="flex justify-between items-center mb-1">
-                  <span><strong>Banco:</strong> Mercantil</span>
-                  <button onClick={() => copyToClipboard("Mercantil")} className="text-red-600 hover:text-red-800" title="Copiar">
+                  <span><strong>Banco:</strong>Banesco</span>
+                  <button onClick={() => copyToClipboard("Banesco")} className="text-red-600 hover:text-red-800" title="Copiar">
                     <FaCopy />
                   </button>
                 </div>
                 <div className="flex justify-between items-center mb-1">
-                  <span><strong>Cédula:</strong> V-26.822.784</span>
-                  <button onClick={() => copyToClipboard("V-26.822.784")} className="text-red-600 hover:text-red-800" title="Copiar">
+                  <span><strong>Cédula:</strong> V-20.781.439</span>
+                  <button onClick={() => copyToClipboard("V-20.781.439")} className="text-red-600 hover:text-red-800" title="Copiar">
                     <FaCopy />
                   </button>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span><strong>Teléfono:</strong> 0424-1592293</span>
-                  <button onClick={() => copyToClipboard("0424-1582293")} className="text-red-600 hover:text-red-800" title="Copiar">
+                  <span><strong>Teléfono:</strong> 0424-2148900</span>
+                  <button onClick={() => copyToClipboard("0424-2148900")} className="text-red-600 hover:text-red-800" title="Copiar">
                     <FaCopy />
                   </button>
                 </div>
@@ -674,14 +681,14 @@ setTimeout(() => {
             ) : (
               <>
                 <div className="flex justify-between items-center mb-1">
-                  <span><strong>Cuenta:</strong> Césardoming0@yahoo.com</span>
-                  <button onClick={() => copyToClipboard("zelle@example.com")} className="text-red-600 hover:text-red-800" title="Copiar">
+                  <span><strong>Cuenta:</strong>Marialejandrap08@gmail.com</span>
+                  <button onClick={() => copyToClipboard("Marialejandrap08@gmail.com")} className="text-red-600 hover:text-red-800" title="Copiar">
                     <FaCopy />
                   </button>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span><strong>Nombre:</strong> César Rodríguez</span>
-                  <button onClick={() => copyToClipboard("Ejemplo Zelle")} className="text-red-600 hover:text-red-800" title="Copiar">
+                  <span><strong>Nombre:</strong>Marialejandra Peñaloza</span>
+                  <button onClick={() => copyToClipboard("Marialejandra Peñaloza")} className="text-red-600 hover:text-red-800" title="Copiar">
                     <FaCopy />
                   </button>
                 </div>
