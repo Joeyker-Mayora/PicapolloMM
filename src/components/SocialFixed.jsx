@@ -17,7 +17,7 @@ const SocialFixed = () => {
     <div className="fixed bottom-4 right-4 flex flex-col gap-4 z-50">
       {/* WhatsApp */}
       <motion.a
-        href="https://wa.me/584141234567" // 👉 cambia este número
+        href="https://wa.me/584124835918" // 👉 cambia este número
         target="_blank"
         rel="noopener noreferrer"
         animate={pulseAnimation} // pulso constante
@@ -35,7 +35,7 @@ const SocialFixed = () => {
 
       {/* Instagram */}
       <motion.a
-        href="https://www.instagram.com/tuusuario" // 👉 cambia por tu usuario
+        href="https://www.instagram.com/picapollomm?igsh=MWs3NGpoMHl6ZnlqcQ==" // 👉 cambia por tu usuario
         target="_blank"
         rel="noopener noreferrer"
         animate={pulseAnimation} // pulso constante
