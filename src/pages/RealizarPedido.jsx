@@ -8,7 +8,8 @@ import { PageModal } from '../components/Utils/CustomStyles';
 import PlatosCombosPequeños from '../components/PlatosCombosPequeños';
 import PlatosCombosGrandes from '../components/PlatosCombosGrandes';
 import PlatosVariedad from '../components/PlatosVariedad';
-import { ChevronUp } from "lucide-react";
+import { ChevronUp } from "lucide-react"
+import ModalCerrado from '../components/ModalCerrado';
 
 const RealizarPedido = () => {
   const [seleccionEntradas, setSeleccionEntradas] = useState([]);
@@ -18,6 +19,8 @@ const RealizarPedido = () => {
   const [croqueta, setCroqueta] = useState(false);
   const [ensalada, setEnsalada] = useState(false);
   const [interactivoBarcos, setInteractivoBarcos] = useState(false);
+  const [estaCerrado, setEstaCerrado] = useState(false);
+
 
 
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -32,33 +35,45 @@ const RealizarPedido = () => {
 
   const navigate = useNavigate();
 
-  const activo = () => {
-    setInteractivoBarcos(true);
+ 
+
+
+  const handleContinuarCerrado = () => {
+    console.log("El usuario decidió continuar viendo el menú");
   };
 
   useEffect(() => {
   const modalVisto = sessionStorage.getItem("modalVisto");
   const origenModal = sessionStorage.getItem("origenModal");
-  console.log("modalVisto:", modalVisto, "origenModal:", origenModal);
 
-  if (modalVisto === "true" || origenModal === "promos") {
-    console.log("Modal no se abre porque ya fue visto o viene de promos");
+  // Si ya se vio el modal o viene de promos, no abrir
+  if (modalVisto === "true" || origenModal === "promos") return;
+
+  // Si el restaurante está cerrado, no abrir el modal de promociones
+  if (estaCerrado) {
+    // Redirige directamente o solo muestra modal cerrado
     return;
   }
 
   const timeout = setTimeout(() => {
     setModalOpen(true);
     sessionStorage.setItem("modalVisto", "true");  // <-- Guardamos que ya vimos el modal
-    console.log("Abriendo modal después de 3 segundos");
   }, 3000);
 
   return () => clearTimeout(timeout);
-}, []);
+}, [estaCerrado]); // <-- agregamos dependencia para que reaccione si cambia
+
 
 
 
 
   const handleSiguiente = () => {
+ if (estaCerrado) {
+      toast.error("Lo sentimos, estamos cerrados. No puedes continuar ahora.", { icon: '⛔' });
+      return;
+    }
+
+
   const todosPlatos = [
     ...seleccionEntradas,
     ...seleccionRoles,
@@ -116,6 +131,8 @@ const RealizarPedido = () => {
   return (
     <div className="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] min-h-screen flex items-start justify-center fondo px-6 py-2 sm:py-12 lg:py-4">
       <div className="bg-white p-8 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center relative mt-20 sm:mt-16">
+        {estaCerrado && <ModalCerrado onContinuar={handleContinuarCerrado} />}
+
         <ModalInicio isOpen={modalOpen} onClose={() => setModalOpen(false)} />
 
         <div className="flex justify-center gap-4 mb-6 mt">
@@ -158,8 +175,13 @@ const RealizarPedido = () => {
 
 
         <button
-          className="bg-gradient-to-r from-orange-500 to-orange-700 hover:bg-orange-800 text-white px-10 py-2 mt-4 rounded transition mx-auto block"
+          className={`px-10 py-2 mt-4 rounded transition mx-auto block ${
+            estaCerrado
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-orange-500 to-orange-700 hover:bg-orange-800 text-white"
+          }`}
           onClick={handleSiguiente}
+          disabled={estaCerrado}
         >
           SIGUIENTE
         </button>

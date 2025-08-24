@@ -49,21 +49,29 @@ const PedidoResumen = () => {
   // Convertimos el precio a número
   const precioNum = convertirAPrecioNumero(precio);
 
+  // Función interna para dar fallback
+  const safeFormat = (num, locale, currency) => {
+    try {
+      return num.toLocaleString(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    } catch (e) {
+      console.warn("toLocaleString no soportado, usando fallback:", e);
+      return num.toFixed(2); // fallback simple
+    }
+  };
+
   if (metodoPago === "Pago Móvil") {
-    // Convertimos de USD a Bs usando la tasa (ejemplo: 160 Bs/USD)
+    // Convertimos de USD a Bs usando la tasa (ejemplo: 145 Bs/USD)
     const precioBs = precioNum * 145;
-    return precioBs.toLocaleString("es-VE", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }) + " Bs";
+    return safeFormat(precioBs, "es-VE") + " Bs";
   }
 
   // Para los demás métodos, mostramos en USD
-  return precioNum.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }) + " USD";
+  return safeFormat(precioNum, "en-US") + " USD";
 };
+
 
 
 
@@ -195,7 +203,7 @@ useEffect(() => {
 
 
 
- const handleImagenChange = async (e) => {
+const handleImagenChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -211,19 +219,42 @@ useEffect(() => {
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
 
-  // 👇 aquí defines la carpeta de destino
-  formData.append("folder", "picapollomm"); 
+  // 👇 carpeta de destino
+  formData.append("folder", "picapollomm");
 
   try {
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    let data;
 
-    const data = await response.json();
+    // --- Intentar con fetch (navegadores modernos)
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      data = await response.json();
+    } catch (err) {
+      console.warn("Fallo fetch, usando XMLHttpRequest:", err);
+
+      // --- Fallback XMLHttpRequest (Androids gama baja)
+      data = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/upload`);
+
+        xhr.onload = () => {
+          try {
+            resolve(JSON.parse(xhr.responseText));
+          } catch (e) {
+            reject(e);
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Error de red en XMLHttpRequest"));
+        xhr.send(formData);
+      });
+    }
 
     if (data.secure_url) {
       setUrlImagen(data.secure_url);
@@ -239,6 +270,7 @@ useEffect(() => {
     setSubiendo(false);
   }
 };
+
 
 
   const confirmarEliminacion = (info) => {
