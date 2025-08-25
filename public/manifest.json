@@ -1,11 +1,11 @@
 {
-  "short_name": "JapanFood",
-  "name": "Japan Food ",
+  "short_name": "picapollomm",
+  "name": "PicapolloMM",
   "icons": [
     {
-      "src": "emprendimiento.jpg",
+      "src": "/src/img/logotipo.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
       "src": "logo512.png",
