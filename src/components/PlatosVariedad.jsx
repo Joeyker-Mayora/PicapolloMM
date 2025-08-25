@@ -3,7 +3,7 @@ import Select from "react-select";
 import Modal from "react-modal";
 import { Plus, Minus, Trash2, Info } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-import {hamburguesasYMas} from "./Utils/DescripcionesPlatos";
+import {hamburguesasYMas, opciones} from "./Utils/DescripcionesPlatos";
 import { nanoid } from "nanoid";
 import { customStyles, ModalAnimado } from "./Utils/CustomStyles";
 import { showSuccess, showError } from "./Utils/toastUtils";
@@ -119,7 +119,6 @@ useEffect(() => {
 
 
   const CheckBebida = ({ platoId }) => {
-  const opciones = ["Pepsi 1L", "7Up 1L", "Cola 1L", "Naranja 1L", "Malta"];
   const seleccion = bebidaPorPlato[platoId]?.[0] || "";
 
  
@@ -199,6 +198,10 @@ useEffect(() => {
 
   // Agregar o actualizar plato en el carrito con la bebida
   const platoConBebida = { ...platoTemporal, bebida: bebidaSeleccionada };
+
+  if (platoConBebida.nombre.includes("Alitas de pollo")) {
+  platoConBebida.nombre = `Alitas de pollo ${cantidadPorcion} piezas`;
+}
 
   setPlatosSeleccionados((prev) => {
     const existe = prev.find((p) => p.id === platoId);
@@ -426,25 +429,29 @@ useEffect(() => {
             </label>
 
            <Select
-              options={opcionsPorcion}
-              value={opcionsPorcion.find(op => op.value === cantidadPorcion)}
-              onChange={(opt) => {
-                const nuevaCantidad = Number(opt.value);
-                  setCantidadPorcion(nuevaCantidad);
+  options={opcionsPorcion}
+  value={opcionsPorcion.find(op => op.value === cantidadPorcion)}
+  onChange={(opt) => {
+    const nuevaCantidad = Number(opt.value);
+    setCantidadPorcion(nuevaCantidad);
 
-                  if (platoTemporal) {
-                    const precioBase = Number(hamburguesasYMas[platoTemporal.nombre].precio);
-                    const precioFinal = nuevaCantidad === 12 ? precioBase * 2 : precioBase;
+    if (platoTemporal) {
+      const precioBase = Number(hamburguesasYMas[platoTemporal.nombre].precio);
+      const precioFinal = nuevaCantidad === 12 ? precioBase * 2 : precioBase;
 
-                    setPlatoTemporal(prev => ({
-                      ...prev,
-                      precio: precioFinal
-                    }));
-                  }
+      // 🔹 Actualizamos nombre con las piezas
+      const nombreConPiezas = `Alitas de pollo ${nuevaCantidad} piezas`;
 
-              }}
-              styles={customStyles}
-            />
+      setPlatoTemporal(prev => ({
+        ...prev,
+        precio: precioFinal,
+        nombre: nombreConPiezas
+      }));
+    }
+  }}
+  styles={customStyles}
+/>
+
 
 
           </div>

@@ -68,99 +68,77 @@ const ModalInicio = ({ isOpen, onClose }) => {
   };
 
   const handlePromoClick = (promoPadre, promoHijo = null) => {
-    // Caso PROMO 1 (con subpromos → siempre va a preparación)
-    if (promoHijo && promoPadre.nombre === "Promo1") {
-      setPromoTemporal({
-        ...promoHijo,
-        parentPromo: promoPadre,
-        opcionesPreparacion: promoPadre.opcionesPreparacion || []
-      });
-      setMostrarModalPreparacion(true);
-      return;
-    }
+  const promoSeleccionada = promoHijo || promoPadre;
 
-    // Caso PROMO 2 → tiene preparación
-    if (promoPadre.nombre === "Promo2") {
-      setPromoTemporal({
-        ...promoHijo,
-        parentPromo: promoPadre,
-        opcionesPreparacion: promoPadre.opcionesPreparacion || []
-      });
-      setMostrarModalPreparacion(true);
-      return;
-    }
+  const tienePreparacion =
+    promoSeleccionada.opcionesPreparacion &&
+    promoSeleccionada.opcionesPreparacion.length > 0;
 
-    // Caso PROMO 3 (Kyoto) → directo a agregar algo más
-  if (promoPadre.nombre === "Promo3") {
-    setPromoTemporal({ ...promoHijo, parentPromo: promoPadre });
-    // Guardar directamente
+  setPromoTemporal({
+    ...promoSeleccionada,
+    parentPromo: promoPadre,
+    opcionesPreparacion: promoSeleccionada.opcionesPreparacion || []
+  });
+
+  if (tienePreparacion) {
+    // Ir al modal de preparación
+    setMostrarModalPreparacion(true);
+  } else {
+    // Guardar directo y abrir modal de agregar más
     const nuevaPromo = {
       id: nanoid(),
-      nombre: "Kyoto",
+      nombre: promoSeleccionada.nombre,
       preparacion: null,
-      precio: promoPadre.promos[0].precio,
-      promo: { ...promoPadre.promos[0] }
+      precio: promoSeleccionada.precio,
+      promo: { ...promoSeleccionada }
     };
     setPromosSeleccionadas(prev => [...prev, nuevaPromo]);
     setMostrarModalAgregarMas(true);
-    showSuccess("Agregado")
+    showSuccess("Agregado");
+  }
+};
+
+
+
+  const confirmarPreparacion = () => {
+  if (!promoTemporal) return;
+
+  const { nombre: nombrePromo, precio: precioPromo, opcionesPreparacion } = promoTemporal;
+
+  if (!nombrePromo || !precioPromo) {
+    toast.error("La promoción no está bien definida.");
     return;
   }
 
+  // Validar solo si la promo requiere preparación
+  if (opcionesPreparacion?.length > 0 && !preparacion) {
+    showError("Por favor, elige una preparación");
+    return;
+  }
 
-    // Seguridad por si en el futuro hay más promos
-    if (promoPadre.opcionesPreparacion && promoPadre.opcionesPreparacion.length > 0) {
-      setPromoTemporal({
-        ...promoHijo,
-        parentPromo: promoPadre,
-        opcionesPreparacion: promoPadre.opcionesPreparacion
-      });
-      setMostrarModalPreparacion(true);
-    } else {
-      setPromoTemporal({
-        ...promoHijo,
-        parentPromo: promoPadre
-      });
-      setMostrarModalAgregarMas(true);
-    }
+  showSuccess("Agregado");
+
+  const nuevaPromo = {
+    id: nanoid(),
+    nombre: nombrePromo,
+    preparacion: opcionesPreparacion?.length > 0 ? preparacion : null,
+    precio: precioPromo,
+    promo: { ...promoTemporal }
   };
 
-  const confirmarPreparacion = () => {
-    if (!promoTemporal) return;
+  // Evitamos duplicar el nombre dentro de `promo`
+  if (nuevaPromo.promo.nombre) delete nuevaPromo.promo.nombre;
 
-    const { nombre: nombrePromo, precio: precioPromo } = promoTemporal;
+  // Guardar en estado (sessionStorage lo maneja el useEffect)
+  setPromosSeleccionadas(prev => [...prev, nuevaPromo]);
 
-    if (!nombrePromo || !precioPromo) {
-      toast.error("La promoción no está bien definida.");
-      return;
-    }
+  // Limpiar estados y cerrar modales
+  setPromoTemporal(null);
+  setPreparacion("");
+  setMostrarModalPreparacion(false);
+  setMostrarModalAgregarMas(true);
+};
 
-    if (nombrePromo !== "Kyoto" && !preparacion) {
-      showError("Por favor, elige una preparación");
-      return;
-    }
-
-    showSuccess("Agregado")
-
-    const nuevaPromo = {
-      id: nanoid(),
-      nombre: nombrePromo,
-      preparacion: nombrePromo === "Kyoto" ? null : preparacion,
-      precio: precioPromo,
-      promo: { ...promoTemporal }
-    };
-
-    if (nuevaPromo.promo.nombre) delete nuevaPromo.promo.nombre;
-
-    // Solo actualizamos el estado, useEffect se encargará del sessionStorage
-    setPromosSeleccionadas(prev => [...prev, nuevaPromo]);
-
-    // Limpiar estados y cerrar modales
-    setPromoTemporal(null);
-    setPreparacion("");
-    setMostrarModalPreparacion(false);
-    setMostrarModalAgregarMas(true);
-  };
 
   const volverAElegirPromo = () => {
     setPromoSeleccionada(null);
@@ -232,135 +210,112 @@ const ModalInicio = ({ isOpen, onClose }) => {
 
             {/* Contenido animado dentro del modal */}
             <motion.div
-            
-        key={modals[indexModalActual].nombre}
-        initial={{
-          x: interactuando
-            ? direccionUsuario > 0
-              ? "100vw"
-              : "-100vw"
-            : "100vw", // siempre inicia desde la derecha para rotación automática
-          opacity: 0,
-        }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={{
-          x: interactuando
-            ? direccionUsuario > 0
-              ? "-100vw"
-              : "100vw"
-            : "-100vw", // siempre sale hacia la izquierda en rotación automática
-          opacity: 0,
-        }}
-        transition={{ type: "tween", duration: 0.7 }}
-        onMouseDown={() => setInteractuando(true)}
-        onTouchStart={() => setInteractuando(true)}
-        onDragStart={() => setInteractuando(true)}
-        onKeyDown={() => setInteractuando(true)}
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.3}
-        onDragEnd={(event, info) => {
-          const offset = info.offset.x;
-          const threshold = 100;
+  key={modals[indexModalActual].nombre}
+  initial={{
+    x: interactuando
+      ? direccionUsuario > 0
+        ? "100vw"
+        : "-100vw"
+      : "100vw",
+    opacity: 0,
+  }}
+  animate={{ x: 0, opacity: 1 }}
+  exit={{
+    x: interactuando
+      ? direccionUsuario > 0
+        ? "-100vw"
+        : "100vw"
+      : "-100vw",
+    opacity: 0,
+  }}
+  transition={{ type: "tween", duration: 0.7 }}
+  onMouseDown={() => setInteractuando(true)}
+  onTouchStart={() => setInteractuando(true)}
+  onDragStart={() => setInteractuando(true)}
+  onKeyDown={() => setInteractuando(true)}
+  drag="x"
+  dragConstraints={{ left: 0, right: 0 }}
+  dragElastic={0.3}
+  onDragEnd={(event, info) => {
+    const offset = info.offset.x;
+    const threshold = 100;
+    if (offset > threshold) {
+      setDireccionUsuario(-1);
+      irAnterior();
+    } else if (offset < -threshold) {
+      setDireccionUsuario(1);
+      irSiguiente();
+    }
+  }}
+  className="bg-white rounded-2xl shadow-2xl max-w-sm w-[90%] max-h-[90vh] overflow-hidden relative mx-auto"
+>
+  {/* Imagen con overlay y degradado */}
+  <div
+    className="relative w-full h-[35vh] sm:h-[250px] cursor-pointer overflow-hidden rounded-t-2xl"
+    onClick={() => setIsImageExpanded(modals[indexModalActual].img)}
+  >
+    <img
+      src={modals[indexModalActual].img}
+      alt={modals[indexModalActual].nombre}
+      className="object-cover w-full h-full select-none"
+      draggable={false}
+    />
 
-          if (offset > threshold) {
-            setDireccionUsuario(-1); // retroceder
-            irAnterior();
-          } else if (offset < -threshold) {
-            setDireccionUsuario(1); // avanzar
-            irSiguiente();
-          }
-        }}
-              className="bg-black rounded-2xl shadow-2xl max-w-sm w-[90%] max-h-[90vh] overflow-y-auto relative mx-auto"
-            >
-              {/* Imagen */}
-              <div className="relative w-full h-[450px] cursor-pointer mt-4">
-                <img
-                  src={modals[indexModalActual].img}
-                  alt={modals[indexModalActual].nombre}
-                  className="object-contain w-full h-full select-none rounded-2xl"
-                  draggable={false}
-                  onClick={() => setIsImageExpanded(modals[indexModalActual].img)}
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 text-white text-sm font-semibold gap-1 pointer-events-none select-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round"
-                      d="M15 10l4.553-4.553M19.553 5.447L15 1m4.553 4.447L21 5m-6 6v8a2 2 0 002 2h8a2 2 0 002-2v-8m-8 0h8" />
-                  </svg>
-                  <span>Pulsa para ampliar</span>
-                </div>
-              </div>
+    {/* Capa oscura encima */}
+    <div className="absolute inset-0 bg-black/40" />
 
-              {/* Botones de promos */}
-            <div className="flex justify-center gap-3 px-6 py-4 relative">
-        {modals[indexModalActual].botones.map((botonNombre, i) => {
-          const promo = modals[indexModalActual].promos[i];
+    {/* Degradado hacia blanco del modal */}
+    <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent -mb-px" />
 
-          return (
-            <div key={i} className="relative">
-              <button
-                onClick={(e) => {
-                  // Si tiene subpromos, mostrar popover
-                  if (promo?.subpromos) {
-                    if (mostrarPopover && promoConSubopciones?.nombre === promo.nombre) {
-                      setMostrarPopover(false);
-                      setPromoConSubopciones(null);
-                      setPromoAnchor(null);
-                    } else {
-                      setPromoConSubopciones(promo);
-                      setPromoAnchor(e.currentTarget);
-                      setMostrarPopover(true);
-                    }
-                  } else {
-                    // Promo normal (Promo2 o Promo3)
-                    handlePromoClick(modals[indexModalActual], promo);
-                  }
-                }}
-                className="relative text-red-500 text-sm px-4 py-1.5 font-semibold rounded-md overflow-hidden border-2 border-white tracking-widest shadow-lg hover:text-red-600 transition-all duration-300"
-                style={{ fontFamily: "'Sawarabi Mincho', serif" }}
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-red-400 to-transparent blur-sm animate-shine" />
-                <span className="relative z-10">{botonNombre}</span>
-              </button>
+    {/* Texto/ícono centrado */}
+    <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-sm font-semibold gap-1 select-none pointer-events-none">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15 10l4.553-4.553M19.553 5.447L15 1m4.553 4.447L21 5m-6 6v8a2 2 0 002 2h8a2 2 0 002-2v-8m-8 0h8"
+        />
+      </svg>
+      <span>Pulsa para ampliar</span>
+    </div>
+  </div>
 
-              {/* Popover de subpromos */}
-              {mostrarPopover && promoConSubopciones?.nombre === promo?.nombre && promo?.subpromos && (
-                <div className="absolute z-50 bottom-full mb-4 max-w-[90vw] w-auto min-w-[160px] rounded-lg bg-black/80 text-red-600 shadow-xl ring-1 ring-red-700/40 left-1/2 -translate-x-[40%] sm:left-[60%] sm:-translate-x-1/2">
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-black/80 border-r border-b border-red-700/40 rotate-45"></div>
-                  <div className="flex flex-col divide-y divide-red-700/40 text-sm">
-                    {promo.subpromos.map((sub, j) => (
-                      <button
-                        key={j}
-                        onClick={() => {
-                          setMostrarPopover(false);
-                          setPromoAnchor(null);
-                          handlePromoClick(modals[indexModalActual], sub); // ✅ ahora pasás el padre y el hijo
-                        }}
-                        className="flex items-center justify-between px-4 py-2 hover:bg-red-700/30 transition text-left font-semibold"
-                      >
-                        <span>{sub.nombre}</span>
-                        <span className="text-red-600 text-xs">➤</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+  {/* Botones de promos */}
+  <div className="flex justify-center gap-3 px-6 py-4 relative">
+    {modals[indexModalActual].botones.map((botonNombre, i) => {
+      const promo = modals[indexModalActual].promos[i];
 
+      return (
+        <div key={i} className="relative">
+          <button
+            onClick={() => handlePromoClick(modals[indexModalActual], promo)}
+            className="relative text-orange-500 text-sm px-4 py-1.5 font-semibold rounded-md overflow-hidden border-2 border-white tracking-widest shadow-lg hover:text-orange-600 transition-all duration-300"
+            style={{ fontFamily: "'Sawarabi Mincho', serif" }}
+          >
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-400 to-transparent blur-sm animate-shine" />
+            <span className="relative z-10">{botonNombre}</span>
+          </button>
+        </div>
+      );
+    })}
+  </div>
 
+  {/* Texto inferior */}
+  <div className="px-6 pb-6 text-center">
+    <h2 className="text-lg font-bold mb-1 text-orange-600">¡Promociones del Día! 🍗</h2>
+    <p className="text-sm text-orange-400">
+      Elige tu Promo favorita y completa los datos para tu pedido.
+    </p>
+  </div>
+</motion.div>
 
-
-
-              {/* Texto inferior */}
-              <div className="px-6 pb-6 text-center text-gray-300">
-                <h2 className="text-lg font-bold mb-1">¡Promoción Especial! 🍣</h2>
-                <p className="text-sm">Elige tu Promo favorita y completa los datos para tu pedido.</p>
-              </div>
-            </motion.div>
           </Modal>
         )}
       </AnimatePresence>
@@ -391,9 +346,9 @@ const ModalInicio = ({ isOpen, onClose }) => {
             transition={{ type: "tween", duration: 0.7 }}
             className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[70]"
           >
-            <div className="bg-neutral-900 rounded-xl p-6 shadow-xl w-[90%] max-w-xs text-white outline-none">
+            <div className="bg-white rounded-xl p-6 shadow-xl w-[90%] max-w-xs text-orange outline-none">
               <h3 className="text-center text-lg font-bold mb-4">
-                {`Elige la preparación 🍣`}
+                {`Elige el Acompañante🍗 `}
               </h3>
 
               <div className="flex flex-col gap-3 mb-5">
@@ -408,7 +363,7 @@ const ModalInicio = ({ isOpen, onClose }) => {
                       value={opcion}
                       checked={preparacion === opcion}
                       onChange={() => setPreparacion(opcion)}
-                      className="accent-red-600"
+                      className="accent-orange-600"
                     />
                     {opcion}
                   </label>
@@ -424,7 +379,7 @@ const ModalInicio = ({ isOpen, onClose }) => {
                 </button>
                 <button
                   onClick={confirmarPreparacion}
-                  className="w-full bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 transition text-white font-semibold py-2 rounded"
+                  className="w-full bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 transition text-white font-semibold py-2 rounded"
                 >
                   OK
                 </button>
@@ -451,8 +406,8 @@ const ModalInicio = ({ isOpen, onClose }) => {
             transition={{ type: "tween", duration: 0.7 }}
             className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[70]"
           >
-            <div className="bg-neutral-900 rounded-xl p-6 shadow-xl w-[90%] max-w-xs text-white">
-              <h3 className="text-center text-lg font-bold mb-6">¿Deseás agregar algo más? 🥢</h3>
+            <div className="bg-white rounded-xl p-6 shadow-xl w-[90%] max-w-xs text-orange">
+              <h3 className="text-center text-lg font-bold mb-6">¿Deseás agregar algo más?</h3>
               <div className="flex gap-4">
                 <button
                   onClick={() => {
@@ -473,7 +428,7 @@ const ModalInicio = ({ isOpen, onClose }) => {
                       navigate("/form");
                     }, 2000);
                   }}
-                  className="w-full bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 transition text-white font-semibold py-2 rounded"
+                  className="w-full bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 transition text-white font-semibold py-2 rounded"
                 >
                   No
                 </button>

@@ -3,7 +3,7 @@ import Select from "react-select";
 import Modal from "react-modal";
 import { Plus, Minus, Trash2, Info } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-import {combosPequeños} from "./Utils/DescripcionesPlatos";
+import {combosPequeños, opciones} from "./Utils/DescripcionesPlatos";
 import { nanoid } from "nanoid";
 import { customStyles, ModalAnimado } from "./Utils/CustomStyles";
 import { showSuccess, showError } from "./Utils/toastUtils";
@@ -112,7 +112,6 @@ useEffect(() => {
 
 
   const CheckBebida = ({ platoId }) => {
-  const opciones = ["Pepsi 1L", "7Up 1L", "Cola 1L", "Naranja 1L", "Malta"];
   const seleccion = bebidaPorPlato[platoId]?.[0] || "";
 
  

@@ -333,7 +333,7 @@ const handleImagenChange = async (e) => {
 };
 
 
-const handleEnviar = () => { 
+const handleEnviar = () => {
   if (!pago) {
     showError("Elegí un método de pago.");
     return;
@@ -347,160 +347,76 @@ const handleEnviar = () => {
     return;
   }
 
-  // 🔹 SIEMPRE leemos del sessionStorage en tiempo real
+  // 🔹 Leer datos en tiempo real
   const datos = JSON.parse(sessionStorage.getItem("datosPedido")) || {};
   const extrasSeleccionados = JSON.parse(sessionStorage.getItem("extrasSeleccionados")) || [];
   const platosPequeños = JSON.parse(sessionStorage.getItem("platosPequeños")) || [];
-  const platosGrandes = JSON.parse(sessionStorage.getItem("platosGrandes")) || {};
-  const promo = JSON.parse(sessionStorage.getItem("promosSeleccionadas")) || [];
+  const platosGrandes = JSON.parse(sessionStorage.getItem("platosGrandes")) || [];
   const platosVariedad = JSON.parse(sessionStorage.getItem("platosVariedad")) || [];
-  const ingredientesPorPlato = JSON.parse(sessionStorage.getItem("ingredientesSeleccionadosPorPlato") || "{}");
+  const promo = JSON.parse(sessionStorage.getItem("promosSeleccionadas")) || [];
 
-  // --- FILTRAR platos que están dentro de barcos ---
-  const platosEnBarcoNombres = new Set();
-  if (platosGrandes.barcos?.length > 0) {
-    platosGrandes.barcos.forEach(barco => {
-      barco.platos.forEach(plato => {
-        const nombrePlato =
-          typeof plato.nombre === "string"
-            ? plato.nombre
-            : plato.nombre?.es || plato.nombre?.value || JSON.stringify(plato.nombre);
-        platosEnBarcoNombres.add(nombrePlato);
-      });
+  // --- 1) Platos (pequeños + grandes juntos) ---
+  let mensajePlatos = "🍗 *Combos:*\n";
+  platosPequeños.forEach(plato => {
+    mensajePlatos += `- ${plato.nombre}\n`;
+    if (plato.bebida) mensajePlatos += ` • Bebida: ${plato.bebida}`;
+    mensajePlatos += `\n`;
+  });
+  platosGrandes.forEach(plato => {
+    mensajePlatos += `- ${plato.nombre}\n`;
+    if (plato.bebida) mensajePlatos += ` • Bebida: ${plato.bebida}\n`;
+    if (plato.nombre === "Bestial" && plato.opcionBestial) {
+      mensajePlatos += ` • Acompañante: ${plato.opcionBestial}`;
+    }
+    mensajePlatos += `\n`;
+  });
+
+  // --- 2) Extras ---
+  let mensajeExtras = "";
+  if (extrasSeleccionados.length > 0) {
+    mensajeExtras += "🍟 *Extras:*\n";
+    extrasSeleccionados.forEach(extra => {
+      mensajeExtras += `- ${extra.nombre} (x${extra.cantidad || 1})\n`;
     });
   }
 
-  // --- Mensaje platos ---
-  let mensajePlatos = "";
-  platosPequeños.forEach((plato) => {
-    const nombrePlato =
-      typeof plato.nombre === "string"
-        ? plato.nombre
-        : plato.nombre?.es || plato.nombre?.value || JSON.stringify(plato.nombre);
+  // --- 3) Variedad (hamburguesas y más + promos) ---
+   // --- 🍔 Variedad (solo platosVariedad) ---
+  let mensajeVariedad = "";
+  if (platosVariedad.length > 0) {
+    mensajeVariedad += "*Variedad:*\n";
+    platosVariedad.forEach(plato => {
+      mensajeVariedad += `- ${plato.nombre}\n`;
+      if (plato.bebida) mensajeVariedad += `  • Bebida: ${plato.bebida}\n`;
+    });
+    mensajeVariedad += "\n";
+  }
 
-    if (platosEnBarcoNombres.has(nombrePlato)) return;
-
-    mensajePlatos += `- ${nombrePlato} (x${plato.cantidad || 1})\n`;
-
-    const ingredientes = ingredientesPorPlato[plato.id];
-    if (ingredientes) {
-      if (Array.isArray(ingredientes)) {
-        mensajePlatos += `  • Ingredientes: ${ingredientes.join(", ")}\n`;
-      } else {
-        if (ingredientes.proteinas?.length) mensajePlatos += `  • Proteínas: ${ingredientes.proteinas.join(", ")}\n`;
-        if (ingredientes.verduras?.length) mensajePlatos += `  • Verduras: ${ingredientes.verduras.join(", ")}\n`;
+  let mensajePromo = "";
+  if (promo.length > 0) {
+    mensajePromo += "🎁 *Promociones:*\n";
+    promo.forEach(p => {
+      mensajePromo += `- ${p.nombre}\n`;
+      if (p.nombre === "Bestial" && p.preparacion) {
+        mensajePromo += `  • Acompañante: ${p.preparacion}\n`;
       }
-    }
-
-    if (plato.tempura) mensajePlatos += `  • Tempura\n`;
-    if (plato.frio) mensajePlatos += `  • Frío\n`;
-
-    const extrasParaEstePlato = extrasSeleccionados.filter(extra => extra.extraAplicado === nombrePlato);
-    extrasParaEstePlato.forEach((extra) => {
-      const tipoExtra = extra.relleno ? "Relleno" : extra.topping ? "Topping" : "Extra";
-      mensajePlatos += `  • Extra: ${extra.nombre} - ${tipoExtra}\n`;
     });
-  });
-
-  // --- Mensaje variedad ---
-  let mensajevariedad = "";
-  platosVariedad.forEach((plato) => {
-    const nombrePlato = typeof plato.nombre === "string"
-      ? plato.nombre
-      : plato.nombre?.es || plato.nombre?.value || JSON.stringify(plato.nombre);
-
-    mensajevariedad += `- ${nombrePlato} (x${plato.cantidad || 1})\n`;
-
-    if (plato.ingredientes?.length) {
-      mensajevariedad += `  • Sabores:\n`;
-      plato.ingredientes.forEach(({ nombre, tempuraFrio }) => {
-        const mostrarTempuraFrio = nombrePlato !== "Naganos" && tempuraFrio;
-        mensajevariedad += `    - ${nombre}${mostrarTempuraFrio ? ` (${tempuraFrio})` : ""}\n`;
-      });
-    }
-
-    if (plato.tempura && nombrePlato !== "Naganos") mensajevariedad += `  • Tempura (plato)\n`;
-    if (plato.frio && nombrePlato !== "Naganos") mensajevariedad += `  • Frío (plato)\n`;
-  });
-
-  // --- Mensaje extras generales ---
-  let mensajeExtrasGenerales = "";
-  const extrasGenerales = extrasSeleccionados.filter(extra => !extra.extraAplicado);
-  if (extrasGenerales.length > 0) {
-    mensajeExtrasGenerales += `🍱 *Extras:*\n`;
-    extrasGenerales.forEach((extra) => {
-      mensajeExtrasGenerales += `- ${extra.nombre} (x${extra.cantidad || 1})\n`;
-      if (extra.relleno) mensajeExtrasGenerales += `  • Relleno\n`;
-      if (extra.topping) mensajeExtrasGenerales += `  • Topping\n`;
-    });
-    mensajeExtrasGenerales += `\n`;
+    mensajePromo += "\n";
   }
-
-  // --- Mensaje barcos ---
-  let mensajeCombos = "";
-  if (platosGrandes.barcos?.length > 0) {
-    mensajeCombos += `\n`;
-    platosGrandes.barcos.forEach((barco) => {
-      const esSushiTorta = barco.tipo?.toLowerCase().includes("sushi");
-      const titulo = esSushiTorta ? `*- ${barco.tipo}*` : `*- Barco ${barco.tamaño} piezas*`;
-      mensajeCombos += `${titulo}\n`;
-      if (barco.croqueta) mensajeCombos += `• Croqueta incluida\n`;
-      if (barco.ensalada) mensajeCombos += `• Ensalada incluida\n`;
-      mensajeCombos += `🍣 *Platos:*\n`;
-      barco.platos.forEach((plato) => {
-        mensajeCombos += `- ${plato.nombre} (x${plato.cantidad || 1})\n`;
-        const detalles = [];
-        if (plato.tempura) detalles.push("Tempura");
-        if (plato.frio) detalles.push("Frío");
-        if (detalles.length > 0) mensajeCombos += `  • ${detalles.join(" / ")}\n`;
-      });
-      mensajeCombos += `\n`;
-    });
-  }
-
-  // --- Mensaje promociones ---
-let mensajePromo = "";
-
-if (promo && promo.length > 0) {
-  mensajePromo += `🎁 *Promociones:*\n`;
-
-  promo.forEach((p) => {
-    const nombre = p?.nombre || "";
-    const preparacionArray = p?.preparacion ? [p.preparacion] : p?.opcionesPreparacion || [];
-    const preparacion = preparacionArray.join(" / ");
-
-    // Mostrar nombre principal
-    mensajePromo += `• ${nombre}\n`;
-
-    // Mostrar preparación si existe
-    if (preparacion) {
-      mensajePromo += `   • ${preparacion}\n`;
-    }
-  });
-}
-
-
-// Usalo luego en WhatsApp:
-// `https://api.whatsapp.com/send?text=${encodeURIComponent(mensajePromo)}`
-
-
-
-
 
   // --- Construcción final ---
-  let mensaje = "*Nuevo pedido:\n";
+  let mensaje = `*Nuevo pedido:*\n\n`;
   if (mensajePromo) mensaje += mensajePromo;
-  if (mensajePlatos) mensaje += `🍗 *Combos:*\n${mensajePlatos}\n`;
-  if (mensajeCombos) mensaje += mensajeCombos;
-  if (mensajevariedad) mensaje += `*\n${mensajevariedad}\n`;
-  if (mensajeExtrasGenerales) mensaje += mensajeExtrasGenerales;
-  mensaje += `💰 *Total:* ${formatearPrecio(total, pago)}\n\n`;
-  mensaje += `🛵 *Delivery:* ${formatearPrecio(tarifaDelivery, pago)}\n\n`;
+  if (mensajePlatos.trim() !== "") mensaje += `${mensajePlatos}\n`;
+  if (mensajeVariedad) mensaje += `${mensajeVariedad}\n`;
+  if (mensajeExtras) mensaje += `${mensajeExtras}\n`;
+
   mensaje += `🙍‍♂️ *Nombre:* ${datos.nombre}\n`;
   mensaje += `📞 *Teléfono:* ${datos.telefono}\n`;
-  mensaje += `🏠 *Forma de entrega:* ${datos.entrega}\n\n`;
-  mensaje += `🏠 *Dirección:* ${datos.direccion}\n\n`;
+  mensaje += `🏠 *Forma de entrega:* ${datos.entrega}\n`;
+  mensaje += `🏠 *Dirección:* ${datos.direccion}\n`;
   mensaje += `💳 *Método de pago:* ${pago}\n`;
+
   if (pago === "Pago Móvil" || pago === "Zelle") {
     mensaje += `🔢 *Referencia:* ${referencia}\n`;
     mensaje += `🔗 *Comprobante:* ${urlImagen}\n`;
@@ -512,22 +428,20 @@ if (promo && promo.length > 0) {
   // --- Envío con modal ---
   setMostrarModal(true);
 
-// Reproducir sonido después de 1 segundo
-if (sonidoConfirmacion) {
+  if (sonidoConfirmacion) {
+    setTimeout(() => {
+      sonidoConfirmacion.play();
+    }, 1000);
+  }
+
   setTimeout(() => {
-    sonidoConfirmacion.play();
-  }, 1000);
-}
-
-// Redirigir a WhatsApp después de 2 segundos
-setTimeout(() => {
-  const numeroWhatsApp = "584124835918";
-  const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-  window.location.href = urlWhatsApp;
-  setMostrarModal(false);
-}, 2000);
-
+    const numeroWhatsApp = "584124835918";
+    const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    window.location.href = urlWhatsApp;
+    setMostrarModal(false);
+  }, 2000);
 };
+
 
 
 

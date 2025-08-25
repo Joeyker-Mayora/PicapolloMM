@@ -1,6 +1,6 @@
 import img from "../../img/promo.png"
-import imgTottori from "../../img/tottori.jpeg"
-import imgkyoto from "../../img/kyoto.jpeg"
+import imgcombo1 from "../../img/combo1.jpeg"
+import imgcombo2 from "../../img/combo2.jpeg"
 
 export const combosPequeños = {
   "Super ": {
@@ -144,56 +144,39 @@ export const extras = {
  
 };
 
+export const opciones = [ "7Up 1L", "Cola 1L"];
+
+
   
 
 
 export const modals = [
   {
     nombre: "Promo1",
-    img: img,
-    opcionesPreparacion: ["Tempura", "Mitad frío / Mitad tempura", "Frío"],
-    botones: ["20","30","40"],
+    img: imgcombo1,
+    
+    botones: ["Lo quiero!"],
     promos: [
       {
-        nombre: "Promo 20 Piezas",
-        subpromos: [
-          { nombre: "Promo Gohan ", precio: "2080" },
-          { nombre: "Promo Classic", precio: "1760" }
-        ],
+        nombre: "Combo Familiar",
+        precio: "20",
       },
-      {
-        nombre: " Promo 30 Piezas",
-        precio: "3360",
-      },
-      {
-        nombre: " Promo 40 Piezas",
-        precio: "4480",
-      }
     ]
   },
   {
     nombre: "Promo2",
-    img: imgTottori,
-    opcionesPreparacion: ["Tempura", "Frío"],
+    img: imgcombo2,
     botones: ["Lo quiero!"],
     promos: [
       {
-        nombre: "Tottori ROLL",
-        precio: "1440",
+        nombre: "Bestial",
+        precio: "30",
+        opcionesPreparacion: ["Alitas", "Tenders"],
+
       },
     ]
   },
-  {
-    nombre: "Promo3",
-    img: imgkyoto,
-    botones: ["Lo quiero!"],
-    promos: [
-      {
-        nombre: "Kyoto",
-        precio: "3360",
-      },
-    ]
-  },
+  
 ];
 
 

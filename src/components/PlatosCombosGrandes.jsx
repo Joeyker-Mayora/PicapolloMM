@@ -3,11 +3,16 @@ import Select from "react-select";
 import Modal from "react-modal";
 import { Plus, Minus, Trash2, Info } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-import {combosGrandes} from "./Utils/DescripcionesPlatos";
+import {combosGrandes, opciones} from "./Utils/DescripcionesPlatos";
 import { nanoid } from "nanoid";
 import { customStyles, ModalAnimado } from "./Utils/CustomStyles";
 import { showSuccess, showError } from "./Utils/toastUtils";
 import { useItems } from "../Hooks/useItems";
+
+const opcionsPorcion = [
+  { label: "Alitas", value: "Alitas", },
+  { label: "Tenders", value: "Tenders", },
+];
 
 
 
@@ -34,6 +39,8 @@ const PlatosCombosGrandes= ({ onSeleccion }) => {
   const [platoPendiente, setPlatoPendiente] = useState(null); // plato seleccionado del Select, aún no confirmado
   const {platosSeleccionados, setPlatosSeleccionados, aumentarCantidad, disminuirCantidad, eliminarItem } = useItems("platosGrandes");
   const [bebidaSeleccionada, setBebidaSeleccionada] = useState(null);
+  const [opcionBestial, setOpcionBestial] = useState(null);
+
 
   
 
@@ -112,7 +119,6 @@ useEffect(() => {
 
 
   const CheckBebida = ({ platoId }) => {
-  const opciones = ["Pepsi 1L", "7Up 1L", "Cola 1L", "Naranja 1L", "Malta"];
   const seleccion = bebidaPorPlato[platoId]?.[0] || "";
 
  
@@ -169,18 +175,9 @@ useEffect(() => {
   );
 
   // Validaciones de rolls
-  if (nombre === "Kawasakis ROLL" && !validarSeleccionIngorangeientes(platoId)) {
-    showError("Debes seleccionar al menos 2 proteínas y 1 verdura.");
-    return;
-  }
-
-  if (["Tohoku ROLL", "Hyogos ROLL"].includes(nombre) && !validarSeleccionRoll(platoId)) {
-    showError(
-      nombre === "Tohoku ROLL"
-        ? "Debes seleccionar un ingorangeiente."
-        : "Debes seleccionar los dos ingorangeientes."
-    );
-    return;
+  if (nombre === "Bestial" && !opcionBestial) {
+    showError("Debes seleccionar Alitas o Tenders");
+    return; // no avanzar
   }
 
   // Validación Tempura / Frío y bebida
@@ -191,7 +188,13 @@ useEffect(() => {
   }
 
   // Agregar o actualizar plato en el carrito con la bebida
-  const platoConBebida = { ...platoTemporal, bebida: bebidaSeleccionada };
+  // Agregar opciónBestial solo si existe
+const platoConBebida = { 
+  ...platoTemporal, 
+  bebida: bebidaSeleccionada,
+  opcionBestial: opcionBestial || null
+};
+
 
   setPlatosSeleccionados((prev) => {
     const existe = prev.find((p) => p.id === platoId);
@@ -208,12 +211,14 @@ useEffect(() => {
   setModalDescripcionInfo(null);
   setPlatoPendiente(null);
   setPlatoTemporal(null);
+  setOpcionBestial(null); // 
 };
 
 
 
   const forzarCerrarModal = () => {
     setModalDescripcionInfo(null);
+    setOpcionBestial(null); // 
   };
 
 
@@ -339,6 +344,23 @@ useEffect(() => {
                {data.descripcion}
              </p>
            )}
+
+           {nombre === "Bestial" && (
+  <div className="mt-4">
+    <label className="block text-xs font-semibold text-gray-700 mb-1">
+      Elige tu Acompañante:
+    </label>
+    <Select
+      options={opcionsPorcion} // Alitas / Tenders
+      value={opcionsPorcion.find(op => op.value === opcionBestial)}
+      onChange={(opt) => setOpcionBestial(opt.value)}
+      styles={customStyles}
+      placeholder="Selecciona"
+      isSearchable={false}
+    />
+  </div>
+)}
+
    
            {/* Línea */}
            <div className="border-t border-gray-200 mt-4 mb-4" />

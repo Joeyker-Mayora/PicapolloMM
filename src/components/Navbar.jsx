@@ -129,9 +129,7 @@ const estaAbierto = () => {
           <button
             onClick={openModal}
             className="relative text-orange-500 bg-white text-lg px-6 py-2 font-semibold rounded-md overflow-hidden border-2 border-white tracking-widest shadow-lg hover:text-red-600 transition-all duration-300 animate-pulse"
-            style={{
-              fontFamily: "'Sawarabi Mincho', serif",
-            }}
+           
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-400 to-transparent blur-sm animate-shine" />
             <span className="relative z-10">Promos</span>

@@ -16,9 +16,7 @@ const RealizarPedido = () => {
   const [seleccionRoles, setSeleccionRoles] = useState([]);
   const [seleccionBarcos, setSeleccionBarcos] = useState([]);
   const [seleccionExtras, setSeleccionExtras] = useState([]);
-  const [croqueta, setCroqueta] = useState(false);
-  const [ensalada, setEnsalada] = useState(false);
-  const [interactivoBarcos, setInteractivoBarcos] = useState(false);
+  
   const [estaCerrado, setEstaCerrado] = useState(false);
 
 
@@ -131,7 +129,7 @@ const RealizarPedido = () => {
   return (
     <div className="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] min-h-screen flex items-start justify-center fondo px-6 py-2 sm:py-12 lg:py-4">
       <div className="bg-white p-8 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center relative mt-20 sm:mt-16">
-        {estaCerrado && <ModalCerrado onContinuar={handleContinuarCerrado} />}
+          <ModalCerrado onContinuar={handleContinuarCerrado} />
 
         <ModalInicio isOpen={modalOpen} onClose={() => setModalOpen(false)} />
 
