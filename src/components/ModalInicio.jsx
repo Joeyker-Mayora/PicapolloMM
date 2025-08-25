@@ -297,7 +297,6 @@ const ModalInicio = ({ isOpen, onClose }) => {
           <button
             onClick={() => handlePromoClick(modals[indexModalActual], promo)}
             className="relative text-orange-500 text-sm px-4 py-1.5 font-semibold rounded-md overflow-hidden border-2 border-white tracking-widest shadow-lg hover:text-orange-600 transition-all duration-300"
-            style={{ fontFamily: "'Sawarabi Mincho', serif" }}
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-400 to-transparent blur-sm animate-shine" />
             <span className="relative z-10">{botonNombre}</span>
