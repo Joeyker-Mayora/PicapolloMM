@@ -144,7 +144,7 @@ export const extras = {
  
 };
 
-export const opciones = [ "7Up 1L", "Cola 1L"];
+export const opciones = [ "7Up 1L", "Cola"];
 
 
   
@@ -154,12 +154,13 @@ export const modals = [
   {
     nombre: "Promo1",
     img: imgcombo1,
-    
     botones: ["Lo quiero!"],
     promos: [
       {
         nombre: "Combo Familiar",
         precio: "20",
+        bebida: true,
+
       },
     ]
   },
@@ -172,6 +173,8 @@ export const modals = [
         nombre: "Bestial",
         precio: "30",
         opcionesPreparacion: ["Alitas", "Tenders"],
+        bebida: true,
+
 
       },
     ]

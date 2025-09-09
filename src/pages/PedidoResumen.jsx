@@ -13,12 +13,13 @@ const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
 const copyToClipboard = (text) => {
-  // Extraer sólo dígitos usando expresión regular
-  const soloNumeros = text.match(/\d+/g)?.join("") || "";
-  navigator.clipboard.writeText(soloNumeros).then(() => {
+  navigator.clipboard.writeText(text).then(() => {
     showSuccess("Copiado al portapapeles");
+  }).catch((err) => {
+    console.error("Error copiando al portapapeles:", err);
   });
 };
+
 const PedidoResumen = () => {
   const [pago, setPago] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -358,12 +359,12 @@ const handleEnviar = () => {
   // --- 1) Platos (pequeños + grandes juntos) ---
   let mensajePlatos = "🍗 *Combos:*\n";
   platosPequeños.forEach(plato => {
-    mensajePlatos += `- ${plato.nombre}\n`;
+    mensajePlatos += `- ${plato.nombre} (x${plato.cantidad || 1})\n`;
     if (plato.bebida) mensajePlatos += ` • Bebida: ${plato.bebida}`;
     mensajePlatos += `\n`;
   });
   platosGrandes.forEach(plato => {
-    mensajePlatos += `- ${plato.nombre}\n`;
+    mensajePlatos += `- ${plato.nombre} (x${plato.cantidad || 1})\n`;
     if (plato.bebida) mensajePlatos += ` • Bebida: ${plato.bebida}\n`;
     if (plato.nombre === "Bestial" && plato.opcionBestial) {
       mensajePlatos += ` • Acompañante: ${plato.opcionBestial}`;
@@ -386,23 +387,27 @@ const handleEnviar = () => {
   if (platosVariedad.length > 0) {
     mensajeVariedad += "*Variedad:*\n";
     platosVariedad.forEach(plato => {
-      mensajeVariedad += `- ${plato.nombre}\n`;
+      mensajeVariedad += `- ${plato.nombre} (x${plato.cantidad || 1})\n`;
       if (plato.bebida) mensajeVariedad += `  • Bebida: ${plato.bebida}\n`;
     });
     mensajeVariedad += "\n";
   }
 
-  let mensajePromo = "";
-  if (promo.length > 0) {
-    mensajePromo += "🎁 *Promociones:*\n";
-    promo.forEach(p => {
-      mensajePromo += `- ${p.nombre}\n`;
-      if (p.nombre === "Bestial" && p.preparacion) {
-        mensajePromo += `  • Acompañante: ${p.preparacion}\n`;
-      }
-    });
-    mensajePromo += "\n";
-  }
+ let mensajePromo = "";
+if (promo.length > 0) {
+  mensajePromo += "🎁 *Promociones:*\n";
+  promo.forEach(p => {
+    mensajePromo += `- ${p.nombre}\n`;
+    if (p.preparacion) {
+      mensajePromo += `  • Acompañante: ${p.preparacion}\n`;
+    }
+    if (p.bebida) {
+      mensajePromo += `  • Bebida: ${p.bebida}\n`;
+    }
+  });
+  mensajePromo += "\n";
+}
+
 
   // --- Construcción final ---
   let mensaje = `*Nuevo pedido:*\n\n`;
@@ -627,7 +632,9 @@ const handleEnviar = () => {
             ) : (
               <>
                 <div className="flex justify-between items-center mb-1">
-                  <span><strong>Cuenta:</strong>Marialejandrap08@gmail.com</span>
+                   <span className="truncate block max-w-[70%]" title="Marialejandrap08@gmail.com">
+                    <strong>Cuenta:</strong> Marialejandrap08@gmail.com
+                  </span>
                   <button onClick={() => copyToClipboard("Marialejandrap08@gmail.com")} className="text-red-600 hover:text-red-800" title="Copiar">
                     <FaCopy />
                   </button>
@@ -674,23 +681,29 @@ const handleEnviar = () => {
             </label>
           </div>
 
-          <div className="mt-3">
-            <label htmlFor="referencia" className="block mb-1 text-sm font-semibold text-gray-700">
-              Últimos 4 dígitos de referencia
-            </label>
-            <input
-              id="referencia"
-              type="text"
-              maxLength={4}
-              value={referencia}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (/^\d{0,4}$/.test(val)) setReferencia(val);
-              }}
-              className="mb-4 w-20 p-2 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none text-center"
-              placeholder="1234"
-            />
-          </div>
+             <div className="mt-3">
+  <label htmlFor="referencia" className="block mb-1 text-sm font-semibold text-gray-700">
+    Últimos 4 dígitos / Referencia
+  </label>
+  <input
+    id="referencia"
+    type="text"
+    maxLength={pago === "Pago Móvil" ? 4 : 30} // 4 dígitos para Pago Móvil, más largo para Zelle
+    value={referencia}
+    onChange={(e) => {
+      const val = e.target.value;
+      if (pago === "Pago Móvil") {
+        // Solo números, como antes
+        if (/^\d{0,4}$/.test(val)) setReferencia(val);
+      } else if (pago === "Zelle") {
+        // Cualquier carácter
+        setReferencia(val);
+      }
+    }}
+    className="mb-4 w-32 p-2 border border-gray-200 rounded shadow-md bg-transparent placeholder-gray-400 focus:outline-none text-center"
+    placeholder={pago === "Pago Móvil" ? "1234" : "Referencia"}
+  />
+</div>
         </>
       )}
 

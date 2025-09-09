@@ -17,7 +17,7 @@ const RealizarPedido = () => {
   const [seleccionBarcos, setSeleccionBarcos] = useState([]);
   const [seleccionExtras, setSeleccionExtras] = useState([]);
   
-  const [estaCerrado, setEstaCerrado] = useState(false);
+  const [estaCerrado, setEstaCerrado] = useState(true);
 
 
 

@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { nanoid } from "nanoid";
 import {showError, showSuccess} from "./Utils/toastUtils"
 import { modals } from "../components/Utils/DescripcionesPlatos"
+import { PageModal } from './Utils/CustomStyles';
+
 
 
 const ModalInicio = ({ isOpen, onClose }) => {
@@ -13,7 +15,6 @@ const ModalInicio = ({ isOpen, onClose }) => {
 
   const [isImageExpanded, setIsImageExpanded] = useState(null);
   const [mostrarModalPreparacion, setMostrarModalPreparacion] = useState(false);
-  const [mostrarModalExito, setMostrarModalExito] = useState(false);
   const [mostrarModalAgregarMas, setMostrarModalAgregarMas] = useState(false);
   const [promoSeleccionada, setPromoSeleccionada] = useState(null);
   const [preparacion, setPreparacion] = useState("");
@@ -27,32 +28,48 @@ const ModalInicio = ({ isOpen, onClose }) => {
   const [interactuando, setInteractuando] = useState(false);
   const [primeraRotacion, setPrimeraRotacion] = useState(true);
   const [direccionUsuario, setDireccionUsuario] = useState(0); // -1 = atrás, 1 = adelante
+  const [bebida, setBebida] = useState("");
+  const [mostrarModal, setMostrarModal] = useState(false);
+
+
 
     // Guardar en sessionStorage automáticamente cuando cambien las promos seleccionadas
-  useEffect(() => {
-    try {
-      if (promosSeleccionadas.length > 0) {
-        sessionStorage.setItem(
-          "promosSeleccionadas",
-          JSON.stringify(promosSeleccionadas)
-        );
-      }
-    } catch (e) {
-      console.error("Error guardando promos en sessionStorage:", e);
-    }
-  }, [promosSeleccionadas]);
+ // 1️⃣ Guardar promos seleccionadas en sessionStorage
+useEffect(() => {
+  try {
+    sessionStorage.setItem(
+      "promosSeleccionadas",
+      JSON.stringify(promosSeleccionadas)
+    );
+  } catch (e) {
+    console.error("Error guardando promos en sessionStorage:", e);
+  }
+}, [promosSeleccionadas]);
 
-  useEffect(() => {
-    if (!interactuando) {
-      const delay = primeraRotacion ? 6000 : 3000; // 6s primera vez, 3s después
-      const timer = setTimeout(() => {
-        setIndexModalActual(prev => (prev + 1) % modals.length);
-        if (primeraRotacion) setPrimeraRotacion(false); // después de la primera
-      }, delay);
+// 2️⃣ Rotación automática de modales (slider)
+useEffect(() => {
+  if (!interactuando) {
+    const delay = primeraRotacion ? 6000 : 3000;
+    const timer = setTimeout(() => {
+      setIndexModalActual(prev => (prev + 1) % modals.length);
+      if (primeraRotacion) setPrimeraRotacion(false);
+    }, delay);
 
-      return () => clearTimeout(timer);
-    }
-  }, [indexModalActual, interactuando, primeraRotacion]);
+    return () => clearTimeout(timer);
+  }
+}, [indexModalActual, interactuando, primeraRotacion]);
+
+// 3️⃣ Reset de estados visuales al abrir el modal
+useEffect(() => {
+  if (isOpen) {
+    setPreparacion("");
+    setBebida("");
+    setMostrarModalPreparacion(false);
+    setMostrarModalAgregarMas(false);
+  }
+}, [isOpen]);
+
+
 
   
   const irSiguiente = () => { 
@@ -67,30 +84,35 @@ const ModalInicio = ({ isOpen, onClose }) => {
     setIndexModalActual((prev) => (prev === 0 ? modals.length - 1 : prev - 1));
   };
 
-  const handlePromoClick = (promoPadre, promoHijo = null) => {
+ // Función para manejar el click en una promo
+const handlePromoClick = (promoPadre, promoHijo = null) => {
   const promoSeleccionada = promoHijo || promoPadre;
 
-  const tienePreparacion =
-    promoSeleccionada.opcionesPreparacion &&
-    promoSeleccionada.opcionesPreparacion.length > 0;
-
-  setPromoTemporal({
+  // Creamos un objeto independiente cada vez
+  const nuevaPromoTemporal = {
     ...promoSeleccionada,
+    id: nanoid(), // ID único
     parentPromo: promoPadre,
-    opcionesPreparacion: promoSeleccionada.opcionesPreparacion || []
-  });
+    opcionesPreparacion: promoSeleccionada.opcionesPreparacion || [],
+    bebida: promoSeleccionada.bebida || false
+  };
 
-  if (tienePreparacion) {
-    // Ir al modal de preparación
+  // Reiniciamos preparación y bebida
+  setPreparacion("");
+  setBebida("");
+  setPromoTemporal(nuevaPromoTemporal);
+
+  const requierePreparacion = nuevaPromoTemporal.opcionesPreparacion.length > 0;
+  const requiereBebida = nuevaPromoTemporal.bebida;
+
+  if (requierePreparacion || requiereBebida) {
     setMostrarModalPreparacion(true);
   } else {
-    // Guardar directo y abrir modal de agregar más
     const nuevaPromo = {
-      id: nanoid(),
-      nombre: promoSeleccionada.nombre,
+      ...nuevaPromoTemporal,
       preparacion: null,
-      precio: promoSeleccionada.precio,
-      promo: { ...promoSeleccionada }
+      bebida: null,
+      precio: promoSeleccionada.precio
     };
     setPromosSeleccionadas(prev => [...prev, nuevaPromo]);
     setMostrarModalAgregarMas(true);
@@ -100,49 +122,52 @@ const ModalInicio = ({ isOpen, onClose }) => {
 
 
 
-  const confirmarPreparacion = () => {
+// Función para confirmar la preparación y bebida
+const confirmarPreparacion = () => {
   if (!promoTemporal) return;
 
   const { nombre: nombrePromo, precio: precioPromo, opcionesPreparacion } = promoTemporal;
 
   if (!nombrePromo || !precioPromo) {
-    toast.error("La promoción no está bien definida.");
+    showError("La promoción no está bien definida.");
     return;
   }
 
-  // Validar solo si la promo requiere preparación
+  if (promoTemporal.bebida && !bebida) {
+    showError("Por favor, elige una bebida");
+    return;
+  }
+
   if (opcionesPreparacion?.length > 0 && !preparacion) {
     showError("Por favor, elige una preparación");
     return;
   }
 
-  showSuccess("Agregado");
-
   const nuevaPromo = {
-    id: nanoid(),
-    nombre: nombrePromo,
+    ...promoTemporal,
+    id: nanoid(), // ID único para que no sobrescriba otras promos
     preparacion: opcionesPreparacion?.length > 0 ? preparacion : null,
-    precio: precioPromo,
-    promo: { ...promoTemporal }
+    bebida: promoTemporal.bebida ? bebida : null,
+    precio: precioPromo
   };
 
-  // Evitamos duplicar el nombre dentro de `promo`
-  if (nuevaPromo.promo.nombre) delete nuevaPromo.promo.nombre;
-
-  // Guardar en estado (sessionStorage lo maneja el useEffect)
   setPromosSeleccionadas(prev => [...prev, nuevaPromo]);
 
   // Limpiar estados y cerrar modales
   setPromoTemporal(null);
   setPreparacion("");
+  setBebida("");
   setMostrarModalPreparacion(false);
   setMostrarModalAgregarMas(true);
+  showSuccess("Agregado");
 };
+
 
 
   const volverAElegirPromo = () => {
     setPromoSeleccionada(null);
     setPreparacion("");
+    setBebida("");
     setMostrarModalPreparacion(false);
   };
 
@@ -151,7 +176,7 @@ const ModalInicio = ({ isOpen, onClose }) => {
       {/* Modal principal animado */}
 
       <AnimatePresence>
-        {isOpen && !mostrarModalPreparacion && !mostrarModalExito && !mostrarModalAgregarMas && !isImageExpanded && (
+        {isOpen && !mostrarModalPreparacion && !mostrarModal && !mostrarModalAgregarMas && !isImageExpanded && (
           <Modal
             isOpen
             onRequestClose={onClose}
@@ -335,58 +360,93 @@ const ModalInicio = ({ isOpen, onClose }) => {
 
 
       {/* Modal Preparación con animación */}
-      <AnimatePresence>
-        {mostrarModalPreparacion && promoTemporal && (
-          <motion.div
-            key={`modal-preparacion-${promoTemporal.nombre}`}
-            initial={{ x: "100vw", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: "100vw", opacity: 0 }}
-            transition={{ type: "tween", duration: 0.7 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[70]"
-          >
-            <div className="bg-white rounded-xl p-6 shadow-xl w-[90%] max-w-xs text-orange outline-none">
-              <h3 className="text-center text-lg font-bold mb-4">
-                {`Elige el Acompañante🍗 `}
-              </h3>
+    <AnimatePresence>
+  {mostrarModalPreparacion && promoTemporal && (
+    <motion.div
+      key={`modal-preparacion-${promoTemporal.nombre}`}
+      initial={{ x: "100vw", opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: "100vw", opacity: 0 }}
+      transition={{ type: "tween", duration: 0.7 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70]"
+    >
+      <div className="bg-white rounded-2xl shadow-xl w-[85%] max-w-[320px] p-5 flex flex-col gap-5">
 
-              <div className="flex flex-col gap-3 mb-5">
-                {(promoTemporal.opcionesPreparacion || []).map((opcion) => (
-                  <label
-                    key={opcion}
-                    className="flex items-center gap-3 cursor-pointer text-sm select-none"
-                  >
-                    <input
-                      type="radio"
-                      name={`preparacion-${promoTemporal.id || promoTemporal.nombre}`}
-                      value={opcion}
-                      checked={preparacion === opcion}
-                      onChange={() => setPreparacion(opcion)}
-                      className="accent-orange-600"
-                    />
-                    {opcion}
-                  </label>
-                ))}
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={volverAElegirPromo}
-                  className="w-full bg-neutral-700 hover:bg-neutral-600 transition text-white font-semibold py-2 rounded"
+        {/* Sección Acompañante */}
+        {promoTemporal.opcionesPreparacion?.length > 0 && (
+          <div className="p-4 rounded-xl bg-white shadow-md">
+            <h3 className="text-center text-lg font-bold text-orange-600 mb-3">
+              Elige tu Acompañante 🍗
+            </h3>
+            <div className="flex flex-col gap-2">
+              {promoTemporal.opcionesPreparacion.map((opcion) => (
+                <label
+                  key={opcion}
+                  className="flex items-center gap-3 cursor-pointer select-none text-gray-800 font-medium"
                 >
-                  Volver
-                </button>
-                <button
-                  onClick={confirmarPreparacion}
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 transition text-white font-semibold py-2 rounded"
-                >
-                  OK
-                </button>
-              </div>
+                  <input
+                    type="radio"
+                    name={`preparacion-${promoTemporal.id || promoTemporal.nombre}`}
+                    value={opcion}
+                    checked={preparacion === opcion}
+                    onChange={() => setPreparacion(opcion)}
+                    className="accent-orange-600 w-4 h-4"
+                  />
+                  {opcion}
+                </label>
+              ))}
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+
+        {/* Sección Bebida */}
+        {promoTemporal?.bebida && (
+          <div className="p-4 rounded-xl bg-white shadow-md">
+            <h3 className="text-center text-lg font-bold text-orange-600 mb-3">
+              Elige tu Bebida 🥤
+            </h3>
+            <div className="flex flex-col gap-2">
+              {["7up", "Cola"].map((opcion) => (
+                <label
+                  key={opcion}
+                  className="flex items-center gap-3 cursor-pointer select-none text-gray-800 font-medium"
+                >
+                  <input
+                    type="radio"
+                    name={`bebida-${promoTemporal.id || promoTemporal.nombre}`}
+                    value={opcion}
+                    checked={bebida === opcion}
+                    onChange={() => setBebida(opcion)}
+                    className="accent-orange-600 w-4 h-4"
+                  />
+                  {opcion}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Botones de acción */}
+        <div className="flex gap-3 mt-4">
+          <button
+            onClick={volverAElegirPromo}
+            className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 rounded-xl transition-shadow shadow"
+          >
+            Volver
+          </button>
+          <button
+            onClick={confirmarPreparacion}
+            className="flex-1 bg-gradient-to-r from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 text-white font-semibold py-2 rounded-xl transition-shadow shadow"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+
 
 
 
@@ -421,9 +481,9 @@ const ModalInicio = ({ isOpen, onClose }) => {
                   onClick={() => {
                     sessionStorage.setItem('modalVisto', 'true');
                     setMostrarModalAgregarMas(false);
-                    setMostrarModalExito(true);
+                    setMostrarModal(true);
                     setTimeout(() => {
-                      setMostrarModalExito(false);
+                      setMostrarModal(false);
                       navigate("/form");
                     }, 2000);
                   }}
@@ -437,14 +497,10 @@ const ModalInicio = ({ isOpen, onClose }) => {
         )}
       </AnimatePresence>
 
-     {mostrarModalExito && (
-  <div className="fixed inset-0 bg-white/100 backdrop-blur-sm flex items-center justify-center z-[80]">
-    <div className="bg-white rounded-2xl p-8 shadow-xl flex flex-col items-center">
-      <div className="text-green-600 text-6xl mb-4">✔</div>
-      <p className="text-green-700 font-semibold text-xl">¡Hecho!</p>
-    </div>
-  </div>
-)}
+   <PageModal 
+      mostrarModal={mostrarModal} 
+      onComplete={() => setMostrarModal(false)} 
+    />
 
     </>
   );
